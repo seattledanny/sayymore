@@ -1,0 +1,17 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Posts collection - public read access, no public writes
+    match /posts/{postId} {
+      allow read: if true;
+      allow write: if false; // Only allow writes via admin SDK (scraping script)
+    }
+    
+    // Subreddits collection - public read access, no public writes  
+    match /subreddits/{subredditId} {
+      allow read: if true;
+      allow write: if false; // Only allow writes via admin SDK
+    }
+  }
+} 
