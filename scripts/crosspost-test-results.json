@@ -1,0 +1,337 @@
+{
+  "timestamp": "2025-05-31T00:19:35.157Z",
+  "subreddit": "AmItheDevil",
+  "sampleSize": 20,
+  "officialCrossposts": 19,
+  "patternBasedCrossposts": 1,
+  "crosspostSources": {
+    "AmItheAsshole": 2,
+    "petfree": 1,
+    "AITA_WIBTA_PUBLIC": 1,
+    "relationship_advice": 4,
+    "weddingplanning": 1,
+    "Rants": 1,
+    "tifu": 2,
+    "Divorce_Men": 1,
+    "CPTSD": 1,
+    "relationships": 1,
+    "CoreyWayne": 1,
+    "Mommit": 1,
+    "offmychest": 1,
+    "askteenboys": 1
+  },
+  "subredditMentions": {
+    "amithedevil": 1,
+    "amitheangel": 1,
+    "amitheasshole": 1,
+    "cptsd": 1
+  },
+  "posts": [
+    {
+      "id": "z588ky",
+      "title": "Welcome!",
+      "score": 293,
+      "is_crosspost": false,
+      "crosspost_parent_subreddit": null,
+      "patterns": {
+        "has_crosspost_mentions": true,
+        "has_repost_mentions": true,
+        "has_source_mentions": false,
+        "has_subreddit_mentions": true,
+        "subreddit_mentions": [
+          "amithedevil",
+          "amitheangel",
+          "amitheasshole"
+        ],
+        "has_meta_indicators": false
+      }
+    },
+    {
+      "id": "1kz93na",
+      "title": "“I only gambled about 30k”",
+      "score": 269,
+      "is_crosspost": true,
+      "crosspost_parent_subreddit": "AmItheAsshole",
+      "patterns": {
+        "has_crosspost_mentions": false,
+        "has_repost_mentions": false,
+        "has_source_mentions": false,
+        "has_subreddit_mentions": false,
+        "subreddit_mentions": [],
+        "has_meta_indicators": false
+      }
+    },
+    {
+      "id": "1kzdjfg",
+      "title": "Doesn't appear the cat is sick ...",
+      "score": 110,
+      "is_crosspost": true,
+      "crosspost_parent_subreddit": "petfree",
+      "patterns": {
+        "has_crosspost_mentions": false,
+        "has_repost_mentions": false,
+        "has_source_mentions": false,
+        "has_subreddit_mentions": false,
+        "subreddit_mentions": [],
+        "has_meta_indicators": false
+      }
+    },
+    {
+      "id": "1kzfgq6",
+      "title": "Yes you are overreacting",
+      "score": 66,
+      "is_crosspost": true,
+      "crosspost_parent_subreddit": "AITA_WIBTA_PUBLIC",
+      "patterns": {
+        "has_crosspost_mentions": false,
+        "has_repost_mentions": false,
+        "has_source_mentions": false,
+        "has_subreddit_mentions": false,
+        "subreddit_mentions": [],
+        "has_meta_indicators": false
+      }
+    },
+    {
+      "id": "1kz4zi6",
+      "title": "Entitled deadbeat",
+      "score": 150,
+      "is_crosspost": true,
+      "crosspost_parent_subreddit": "relationship_advice",
+      "patterns": {
+        "has_crosspost_mentions": false,
+        "has_repost_mentions": false,
+        "has_source_mentions": false,
+        "has_subreddit_mentions": false,
+        "subreddit_mentions": [],
+        "has_meta_indicators": false
+      }
+    },
+    {
+      "id": "1kz2nia",
+      "title": "He sounds like such a keeper🙄",
+      "score": 124,
+      "is_crosspost": true,
+      "crosspost_parent_subreddit": "relationship_advice",
+      "patterns": {
+        "has_crosspost_mentions": false,
+        "has_repost_mentions": false,
+        "has_source_mentions": false,
+        "has_subreddit_mentions": false,
+        "subreddit_mentions": [],
+        "has_meta_indicators": false
+      }
+    },
+    {
+      "id": "1kz2xt9",
+      "title": "Such a microaggression against stepkids",
+      "score": 76,
+      "is_crosspost": true,
+      "crosspost_parent_subreddit": "weddingplanning",
+      "patterns": {
+        "has_crosspost_mentions": false,
+        "has_repost_mentions": false,
+        "has_source_mentions": false,
+        "has_subreddit_mentions": false,
+        "subreddit_mentions": [],
+        "has_meta_indicators": false
+      }
+    },
+    {
+      "id": "1kyj9vu",
+      "title": "OOP’s “sanity” &gt; daughters weight gain",
+      "score": 463,
+      "is_crosspost": true,
+      "crosspost_parent_subreddit": "AmItheAsshole",
+      "patterns": {
+        "has_crosspost_mentions": false,
+        "has_repost_mentions": false,
+        "has_source_mentions": false,
+        "has_subreddit_mentions": false,
+        "subreddit_mentions": [],
+        "has_meta_indicators": false
+      }
+    },
+    {
+      "id": "1kyrt72",
+      "title": "Bullying makes you successful, guys!",
+      "score": 131,
+      "is_crosspost": true,
+      "crosspost_parent_subreddit": "Rants",
+      "patterns": {
+        "has_crosspost_mentions": false,
+        "has_repost_mentions": false,
+        "has_source_mentions": false,
+        "has_subreddit_mentions": false,
+        "subreddit_mentions": [],
+        "has_meta_indicators": false
+      }
+    },
+    {
+      "id": "1kyt02i",
+      "title": "Couldn’t be less helpful if they tried",
+      "score": 79,
+      "is_crosspost": true,
+      "crosspost_parent_subreddit": "tifu",
+      "patterns": {
+        "has_crosspost_mentions": false,
+        "has_repost_mentions": false,
+        "has_source_mentions": false,
+        "has_subreddit_mentions": false,
+        "subreddit_mentions": [],
+        "has_meta_indicators": false
+      }
+    },
+    {
+      "id": "1kyo4ox",
+      "title": "Bitterness + double standards",
+      "score": 58,
+      "is_crosspost": true,
+      "crosspost_parent_subreddit": "Divorce_Men",
+      "patterns": {
+        "has_crosspost_mentions": false,
+        "has_repost_mentions": false,
+        "has_source_mentions": false,
+        "has_subreddit_mentions": false,
+        "subreddit_mentions": [],
+        "has_meta_indicators": false
+      }
+    },
+    {
+      "id": "1kylhw2",
+      "title": "Admitting To Neglect On r/CPTSD…",
+      "score": 72,
+      "is_crosspost": true,
+      "crosspost_parent_subreddit": "CPTSD",
+      "patterns": {
+        "has_crosspost_mentions": false,
+        "has_repost_mentions": false,
+        "has_source_mentions": false,
+        "has_subreddit_mentions": true,
+        "subreddit_mentions": [
+          "cptsd"
+        ],
+        "has_meta_indicators": false
+      }
+    },
+    {
+      "id": "1ky3m77",
+      "title": "If you hate him, why be upset at NC?",
+      "score": 132,
+      "is_crosspost": true,
+      "crosspost_parent_subreddit": "relationships",
+      "patterns": {
+        "has_crosspost_mentions": false,
+        "has_repost_mentions": false,
+        "has_source_mentions": false,
+        "has_subreddit_mentions": false,
+        "subreddit_mentions": [],
+        "has_meta_indicators": false
+      }
+    },
+    {
+      "id": "1kxsua9",
+      "title": "I want to cheat. Wah wah wah.",
+      "score": 415,
+      "is_crosspost": true,
+      "crosspost_parent_subreddit": "CoreyWayne",
+      "patterns": {
+        "has_crosspost_mentions": false,
+        "has_repost_mentions": false,
+        "has_source_mentions": false,
+        "has_subreddit_mentions": false,
+        "subreddit_mentions": [],
+        "has_meta_indicators": false
+      }
+    },
+    {
+      "id": "1kxl793",
+      "title": "Server did not spill the coffee",
+      "score": 699,
+      "is_crosspost": true,
+      "crosspost_parent_subreddit": "Mommit",
+      "patterns": {
+        "has_crosspost_mentions": false,
+        "has_repost_mentions": false,
+        "has_source_mentions": false,
+        "has_subreddit_mentions": false,
+        "subreddit_mentions": [],
+        "has_meta_indicators": false
+      }
+    },
+    {
+      "id": "1kxp657",
+      "title": "Lets wife abuse son.",
+      "score": 242,
+      "is_crosspost": true,
+      "crosspost_parent_subreddit": "relationship_advice",
+      "patterns": {
+        "has_crosspost_mentions": false,
+        "has_repost_mentions": false,
+        "has_source_mentions": false,
+        "has_subreddit_mentions": false,
+        "subreddit_mentions": [],
+        "has_meta_indicators": false
+      }
+    },
+    {
+      "id": "1kxf0cx",
+      "title": "He fucked around and found out",
+      "score": 535,
+      "is_crosspost": true,
+      "crosspost_parent_subreddit": "relationship_advice",
+      "patterns": {
+        "has_crosspost_mentions": false,
+        "has_repost_mentions": false,
+        "has_source_mentions": false,
+        "has_subreddit_mentions": false,
+        "subreddit_mentions": [],
+        "has_meta_indicators": false
+      }
+    },
+    {
+      "id": "1kxj0jj",
+      "title": "Just…yikes",
+      "score": 276,
+      "is_crosspost": true,
+      "crosspost_parent_subreddit": "tifu",
+      "patterns": {
+        "has_crosspost_mentions": false,
+        "has_repost_mentions": false,
+        "has_source_mentions": false,
+        "has_subreddit_mentions": false,
+        "subreddit_mentions": [],
+        "has_meta_indicators": false
+      }
+    },
+    {
+      "id": "1kxk154",
+      "title": "Sees nothing wrong with coerced porn",
+      "score": 213,
+      "is_crosspost": true,
+      "crosspost_parent_subreddit": "offmychest",
+      "patterns": {
+        "has_crosspost_mentions": false,
+        "has_repost_mentions": false,
+        "has_source_mentions": false,
+        "has_subreddit_mentions": false,
+        "subreddit_mentions": [],
+        "has_meta_indicators": false
+      }
+    },
+    {
+      "id": "1kxg35v",
+      "title": "How do you feel about misandry?",
+      "score": 187,
+      "is_crosspost": true,
+      "crosspost_parent_subreddit": "askteenboys",
+      "patterns": {
+        "has_crosspost_mentions": false,
+        "has_repost_mentions": false,
+        "has_source_mentions": false,
+        "has_subreddit_mentions": false,
+        "subreddit_mentions": [],
+        "has_meta_indicators": false
+      }
+    }
+  ]
+}

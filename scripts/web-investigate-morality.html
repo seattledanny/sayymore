@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Investigate Morality Category Posts</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover { background: #5a67d8; }
+        button:disabled { background: #6c757d; cursor: not-allowed; }
+        .remove-btn { background: #dc3545; }
+        .remove-btn:hover { background: #c82333; }
+        .log {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-family: monospace;
+            max-height: 500px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            white-space: pre-wrap;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .warning { background: #fff3cd; color: #856404; border: 1px solid #ffeaa7; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .section {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Investigate Morality Category Posts</h1>
+        <p>This tool will analyze what subreddits are in the morality category and search for AmItheDevil variations.</p>
+
+        <div class="section">
+            <h3>📊 Analysis Tools</h3>
+            <button onclick="analyzeMoralityCategory()">📊 Analyze Morality Category</button>
+            <button onclick="searchAmItheDevilVariations()">🔍 Search AmItheDevil Variations</button>
+            <button onclick="searchAllSubreddits()">🌐 List All Subreddits</button>
+        </div>
+
+        <div class="section">
+            <h3>🗑️ Removal Tools</h3>
+            <button id="removeSpecificBtn" onclick="removeSpecificSubreddit()" disabled class="remove-btn">🗑️ Remove Specific Subreddit</button>
+            <input type="text" id="subredditInput" placeholder="Enter exact subreddit name" style="padding: 8px; margin: 5px; width: 200px;">
+        </div>
+        
+        <div id="log" class="log"></div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+        import { getFirestore, collection, query, where, getDocs, deleteDoc, doc, writeBatch, limit } from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDHSs1mM52_fSSRqHUgMhjUnRuC6B_2bRU",
+            authDomain: "reddit-conversations-af4ed.firebaseapp.com",
+            projectId: "reddit-conversations-af4ed",
+            storageBucket: "reddit-conversations-af4ed.firebasestorage.app",
+            messagingSenderId: "1098498238947",
+            appId: "1:1098498238947:web:b5e9bf3f39dca9bfadbdcd"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        function log(message) {
+            const logDiv = document.getElementById('log');
+            logDiv.innerHTML += new Date().toLocaleTimeString() + ': ' + message + '\n';
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        window.analyzeMoralityCategory = async function() {
+            try {
+                log('🔍 Analyzing morality category posts...\n');
+                
+                const q = query(
+                    collection(db, 'posts'),
+                    where('category', '==', 'morality'),
+                    limit(100)
+                );
+                
+                const querySnapshot = await getDocs(q);
+                log(`📊 Found ${querySnapshot.docs.length} posts in morality category\n`);
+                
+                // Count subreddits
+                const subredditCounts = {};
+                const samplePosts = [];
+                
+                querySnapshot.docs.forEach((docSnapshot) => {
+                    const data = docSnapshot.data();
+                    const subreddit = data.subreddit || 'unknown';
+                    
+                    subredditCounts[subreddit] = (subredditCounts[subreddit] || 0) + 1;
+                    
+                    if (samplePosts.length < 10) {
+                        samplePosts.push({
+                            id: docSnapshot.id,
+                            subreddit: subreddit,
+                            title: data.title?.substring(0, 80) + '...',
+                            score: data.score
+                        });
+                    }
+                });
+                
+                log('📈 Subreddit breakdown in morality category:');
+                Object.entries(subredditCounts)
+                    .sort((a, b) => b[1] - a[1])
+                    .forEach(([subreddit, count]) => {
+                        log(`   ${subreddit}: ${count} posts`);
+                    });
+                
+                log('\n📝 Sample posts from morality category:');
+                samplePosts.forEach((post, i) => {
+                    log(`   ${i+1}. r/${post.subreddit} - ${post.title} (${post.score} pts)`);
+                });
+                
+            } catch (error) {
+                log('❌ Error analyzing morality category: ' + error.message);
+            }
+        };
+
+        window.searchAmItheDevilVariations = async function() {
+            const variations = [
+                'AmItheDevil',
+                'amIthedevil', 
+                'AmITheDevil',
+                'amItheDevil',
+                'AMITDEDEVIL',
+                'AmItheAsshole', // Sometimes confused
+                'amithedevil'
+            ];
+            
+            log('🔍 Searching for AmItheDevil variations...\n');
+            
+            for (const variation of variations) {
+                try {
+                    const q = query(
+                        collection(db, 'posts'),
+                        where('subreddit', '==', variation),
+                        limit(10)
+                    );
+                    
+                    const querySnapshot = await getDocs(q);
+                    
+                    if (querySnapshot.docs.length > 0) {
+                        log(`✨ Found ${querySnapshot.docs.length} posts for "${variation}"`);
+                        
+                        querySnapshot.docs.slice(0, 3).forEach((docSnapshot, i) => {
+                            const data = docSnapshot.data();
+                            log(`   ${i+1}. ${data.title?.substring(0, 60)}... (${data.score} pts)`);
+                        });
+                        log('');
+                    } else {
+                        log(`   "${variation}": 0 posts`);
+                    }
+                } catch (error) {
+                    log(`❌ Error searching "${variation}": ${error.message}`);
+                }
+            }
+        };
+
+        window.searchAllSubreddits = async function() {
+            try {
+                log('🌐 Getting all unique subreddits...\n');
+                
+                const q = query(collection(db, 'posts'), limit(1000));
+                const querySnapshot = await getDocs(q);
+                
+                const subredditCounts = {};
+                
+                querySnapshot.docs.forEach((docSnapshot) => {
+                    const data = docSnapshot.data();
+                    const subreddit = data.subreddit || 'unknown';
+                    subredditCounts[subreddit] = (subredditCounts[subreddit] || 0) + 1;
+                });
+                
+                log(`📊 Found ${Object.keys(subredditCounts).length} unique subreddits:\n`);
+                
+                Object.entries(subredditCounts)
+                    .sort((a, b) => b[1] - a[1])
+                    .forEach(([subreddit, count]) => {
+                        log(`   ${subreddit}: ${count} posts`);
+                    });
+                
+                // Enable the remove button and show popular subreddits in the input placeholder
+                document.getElementById('removeSpecificBtn').disabled = false;
+                document.getElementById('subredditInput').placeholder = 'e.g., ' + Object.keys(subredditCounts)[0];
+                
+            } catch (error) {
+                log('❌ Error getting subreddits: ' + error.message);
+            }
+        };
+
+        window.removeSpecificSubreddit = async function() {
+            const subredditName = document.getElementById('subredditInput').value.trim();
+            
+            if (!subredditName) {
+                log('❌ Please enter a subreddit name to remove.');
+                return;
+            }
+            
+            try {
+                log(`🔍 Searching for posts from r/${subredditName}...`);
+                
+                const q = query(
+                    collection(db, 'posts'),
+                    where('subreddit', '==', subredditName)
+                );
+                
+                const querySnapshot = await getDocs(q);
+                
+                if (querySnapshot.docs.length === 0) {
+                    log(`✅ No posts found for r/${subredditName}`);
+                    return;
+                }
+                
+                log(`📊 Found ${querySnapshot.docs.length} posts from r/${subredditName}`);
+                log('🗑️ Starting removal...');
+                
+                // Batch delete
+                const batches = [];
+                let currentBatch = writeBatch(db);
+                let operationCount = 0;
+                
+                querySnapshot.docs.forEach((docSnapshot) => {
+                    currentBatch.delete(doc(db, 'posts', docSnapshot.id));
+                    operationCount++;
+                    
+                    if (operationCount === 500) {
+                        batches.push(currentBatch);
+                        currentBatch = writeBatch(db);
+                        operationCount = 0;
+                    }
+                });
+                
+                if (operationCount > 0) {
+                    batches.push(currentBatch);
+                }
+                
+                for (let i = 0; i < batches.length; i++) {
+                    log(`   Processing batch ${i + 1}/${batches.length}...`);
+                    await batches[i].commit();
+                }
+                
+                log(`✅ Successfully removed all ${querySnapshot.docs.length} posts from r/${subredditName}!`);
+                
+            } catch (error) {
+                log(`❌ Error removing r/${subredditName}: ${error.message}`);
+            }
+        };
+
+        // Auto-analyze on page load
+        window.addEventListener('load', () => {
+            log('🚀 Investigation tool loaded. Firebase initialized.\n');
+            log('Click "Analyze Morality Category" to see what subreddits are in there!\n');
+        });
+    </script>
+</body>
+</html> 

@@ -62,3 +62,4 @@ temp/
 # Reddit API test files
 test-data/
 scraped-data/ 
+.vercel

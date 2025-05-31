@@ -1,0 +1,26 @@
+{
+  "short_name": "Sayymore.com",
+  "name": "Sayymore.com - Fun Conversation Starters from Reddit",
+  "description": "Discover thousands of engaging conversation starters from popular Reddit posts",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "apple-touch-icon.png",
+      "type": "image/png",
+      "sizes": "180x180",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#667eea",
+  "background_color": "#ffffff",
+  "orientation": "portrait",
+  "scope": "/",
+  "categories": ["social", "entertainment", "lifestyle"],
+  "lang": "en-US"
+} 

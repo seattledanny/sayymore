@@ -4,15 +4,93 @@
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#3B82F6" />
-    <meta name="description" content="Discover fascinating conversation-starter stories from Reddit's most engaging communities" />
-    <title>Reddit Conversations - Stories That Spark Discussion</title>
+    <meta name="theme-color" content="#000000" />
+    
+    <!-- Primary Meta Tags -->
+    <title>Sayymore.com - Fun Conversation Starters from Reddit</title>
+    <meta name="title" content="Sayymore.com - Fun Conversation Starters from Reddit">
+    <meta name="description" content="Discover thousands of engaging conversation starters from popular Reddit posts. Perfect for breaking the ice, sparking discussions, and connecting with others.">
+    
+    <!-- SEO Meta Tags -->
+    <meta name="keywords" content="reddit stories, conversation starters, social discussions, reddit conversations, dinner party topics, dating conversation, relationship stories, wedding planning, life advice" />
+    <meta name="author" content="Sayymore.com" />
+    <meta name="robots" content="index, follow" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://reddit-conversations.vercel.app/">
+    <meta property="og:title" content="Sayymore.com - Fun Conversation Starters from Reddit">
+    <meta property="og:description" content="Discover thousands of engaging conversation starters from popular Reddit posts. Perfect for breaking the ice, sparking discussions, and connecting with others.">
+    <meta property="og:image" content="%PUBLIC_URL%/social-preview.png">
+    <meta property="og:site_name" content="Sayymore.com" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://reddit-conversations.vercel.app/">
+    <meta property="twitter:title" content="Sayymore.com - Fun Conversation Starters from Reddit">
+    <meta property="twitter:description" content="Discover thousands of engaging conversation starters from popular Reddit posts. Perfect for breaking the ice, sparking discussions, and connecting with others.">
+    <meta property="twitter:image" content="%PUBLIC_URL%/og-image.png" />
+    
+    <!-- PWA -->
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/apple-touch-icon.png" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Sayymore.com" />
+    
+    <!-- Performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="dns-prefetch" href="//firestore.googleapis.com">
+    
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
+    
+    <!-- Defensive script to prevent external script errors -->
+    <script>
+      // Prevent external scripts from breaking on null elements
+      (function() {
+        // Override addEventListener to handle null elements
+        const originalAddEventListener = Element.prototype.addEventListener;
+        Element.prototype.addEventListener = function(type, listener, options) {
+          if (this === null || this === undefined) {
+            console.warn('Attempted to add event listener to null/undefined element');
+            return;
+          }
+          return originalAddEventListener.call(this, type, listener, options);
+        };
+
+        // Override querySelector to prevent null errors
+        const originalQuerySelector = Document.prototype.querySelector;
+        Document.prototype.querySelector = function(selector) {
+          try {
+            return originalQuerySelector.call(this, selector);
+          } catch (e) {
+            console.warn('querySelector error caught:', e.message);
+            return null;
+          }
+        };
+
+        // Global error handler for uncaught errors
+        window.addEventListener('error', function(event) {
+          if (event.filename && event.filename.includes('share-modal.js')) {
+            console.warn('External share-modal.js error suppressed:', event.message);
+            event.preventDefault();
+            return false;
+          }
+        });
+
+        // Handle unhandled promise rejections
+        window.addEventListener('unhandledrejection', function(event) {
+          if (event.reason && event.reason.toString().includes('share-modal')) {
+            console.warn('Share-modal promise rejection suppressed');
+            event.preventDefault();
+          }
+        });
+      })();
+    </script>
   </body>
 </html> 
