@@ -9,6 +9,7 @@ import AnalyticsDashboard from './components/AnalyticsDashboard';
 import MobileLanding from './components/MobileLanding';
 import MobilePostList from './components/MobilePostList';
 import MobilePostView from './components/MobilePostView';
+import MobileHeader from './components/MobileHeader';
 
 // Services
 import { postService } from './services/postService';
@@ -327,13 +328,15 @@ function App() {
     if (currentView === 'analytics') {
       return (
         <div className="App mobile-app">
-          <div className="mobile-header">
-            <button onClick={() => {
+          <MobileHeader 
+            title="Analytics"
+            showBack={true}
+            onBack={() => {
               setCurrentView('posts');
               setMobileView('landing');
-            }}>← Back</button>
-            <h2>Analytics</h2>
-          </div>
+            }}
+            variant="gradient"
+          />
           <AnalyticsDashboard />
         </div>
       );
@@ -343,11 +346,17 @@ function App() {
       <div className="App mobile-app">
         {/* Mobile Landing Page */}
         {mobileView === 'landing' && (
-          <div className="mobile-landing">
-            <div className="mobile-header">
-              <h1>💬 Sayymore.com</h1>
-              <p>Fun Conversation Starters</p>
-            </div>
+          <>
+            <MobileHeader 
+              title="💬 Sayymore"
+              subtitle="Fun Conversation Starters"
+              showSearch={true}
+              onSearch={() => {
+                // TODO: Implement search functionality
+                console.log('Search clicked');
+              }}
+              variant="landing"
+            />
             
             <MobileLanding 
               categories={categories}
@@ -356,15 +365,22 @@ function App() {
               onSubredditSelect={handleMobileSubredditSelect}
               onAnalyticsClick={handleMobileAnalyticsClick}
             />
-          </div>
+          </>
         )}
 
         {/* Mobile Post List Page */}
         {mobileView === 'postList' && (
-          <div className="mobile-post-list">
-            <div className="mobile-header">
-              <h2>{getFilterDisplayName()}</h2>
-            </div>
+          <>
+            <MobileHeader 
+              title={getFilterDisplayName()}
+              showBack={true}
+              onBack={handleMobileBackToLanding}
+              showSearch={true}
+              onSearch={() => {
+                // TODO: Implement search functionality
+                console.log('Search clicked from post list');
+              }}
+            />
             
             <MobilePostList 
               posts={posts}
@@ -375,21 +391,30 @@ function App() {
               onBackToLanding={handleMobileBackToLanding}
               onGetFreshPosts={handleMobileGetFreshPosts}
             />
-          </div>
+          </>
         )}
 
         {/* Mobile Post View Page */}
         {mobileView === 'postView' && (
-          <div className="mobile-post-view">
-            <div className="mobile-header">
-              <h2>Full Post</h2>
-            </div>
+          <>
+            <MobileHeader 
+              title="Full Story"
+              showBack={true}
+              onBack={handleMobileBackToPostList}
+              showAction={true}
+              actionIcon="📤"
+              actionLabel="Share"
+              onAction={() => {
+                // TODO: Implement share functionality
+                console.log('Share clicked');
+              }}
+            />
             
             <MobilePostView 
               post={selectedPost}
               onBackToPostList={handleMobileBackToPostList}
             />
-          </div>
+          </>
         )}
       </div>
     );

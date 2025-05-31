@@ -247,68 +247,19 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    background: #f8f9fa;
   }
   
-  .mobile-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    padding: 12px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    flex-shrink: 0;
-    text-align: center;
-  }
-  
-  .mobile-header button {
-    background: rgba(255, 255, 255, 0.2);
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-  
-  .mobile-header button:hover {
-    background: rgba(255, 255, 255, 0.3);
-  }
-  
-  .mobile-header h1 {
-    margin: 0;
-    font-size: 1.3rem;
-    font-weight: 700;
-  }
-  
-  .mobile-header h2 {
-    margin: 0;
-    font-size: 1.2rem;
-    font-weight: 600;
-  }
-  
-  .mobile-header p {
-    margin: 0;
-    font-size: 0.85rem;
-    opacity: 0.9;
-  }
-  
-  .mobile-landing {
+  /* Mobile content containers */
+  .mobile-landing,
+  .mobile-post-list,
+  .mobile-post-view {
     flex: 1;
     overflow-y: auto;
     background: #f8f9fa;
   }
   
-  .mobile-post-list {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-  }
-  
-  /* Remove placeholder styles as we now have real component */
+  /* Remove placeholder styles as we now have real components */
   .mobile-placeholder {
     display: none;
   }

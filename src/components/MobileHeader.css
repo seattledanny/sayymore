@@ -1,0 +1,223 @@
+/* Mobile Header Component Styles */
+.mobile-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: white;
+  border-bottom: 1px solid #e9ecef;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.mobile-header.gradient {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-bottom: none;
+  color: white;
+}
+
+.mobile-header.landing {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-bottom: none;
+  color: white;
+  padding: 10px 0 20px 0;
+}
+
+.mobile-header-content {
+  display: grid;
+  grid-template-columns: 60px 1fr 60px;
+  align-items: center;
+  padding: 12px 20px;
+  min-height: 56px;
+  max-width: 100%;
+}
+
+/* Left Side - Back Button */
+.mobile-header-left {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.mobile-header-back {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #667eea;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  min-width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-header-back:hover,
+.mobile-header-back:active {
+  background: rgba(102, 126, 234, 0.1);
+  transform: scale(1.05);
+}
+
+.mobile-header.gradient .mobile-header-back,
+.mobile-header.landing .mobile-header-back {
+  color: white;
+}
+
+.mobile-header.gradient .mobile-header-back:hover,
+.mobile-header.landing .mobile-header-back:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Center - Title and Subtitle */
+.mobile-header-center {
+  text-align: center;
+  overflow: hidden;
+}
+
+.mobile-header-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.mobile-header.landing .mobile-header-title {
+  font-size: 1.4rem;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  white-space: normal;
+}
+
+.mobile-header.gradient .mobile-header-title {
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.mobile-header-subtitle {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 2px 0 0 0;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mobile-header.landing .mobile-header-subtitle,
+.mobile-header.gradient .mobile-header-subtitle {
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Right Side - Action Buttons */
+.mobile-header-right {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobile-header-action {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: #667eea;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  min-width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-header-action:hover,
+.mobile-header-action:active {
+  background: rgba(102, 126, 234, 0.1);
+  transform: scale(1.05);
+}
+
+.mobile-header.gradient .mobile-header-action,
+.mobile-header.landing .mobile-header-action {
+  color: white;
+}
+
+.mobile-header.gradient .mobile-header-action:hover,
+.mobile-header.landing .mobile-header-action:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Touch-friendly improvements */
+@media (pointer: coarse) {
+  .mobile-header-back,
+  .mobile-header-action {
+    min-width: 44px;
+    height: 44px;
+    font-size: 1.3rem;
+  }
+  
+  .mobile-header-content {
+    padding: 12px 16px;
+    min-height: 60px;
+  }
+}
+
+/* Small screen adjustments */
+@media (max-width: 480px) {
+  .mobile-header-content {
+    grid-template-columns: 50px 1fr 50px;
+    padding: 10px 16px;
+  }
+  
+  .mobile-header-title {
+    font-size: 1rem;
+  }
+  
+  .mobile-header.landing .mobile-header-title {
+    font-size: 1.2rem;
+  }
+  
+  .mobile-header-subtitle {
+    font-size: 0.8rem;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 360px) {
+  .mobile-header-content {
+    grid-template-columns: 45px 1fr 45px;
+    padding: 8px 12px;
+  }
+  
+  .mobile-header-title {
+    font-size: 0.95rem;
+  }
+  
+  .mobile-header.landing .mobile-header-title {
+    font-size: 1.1rem;
+  }
+}
+
+/* Accessibility improvements */
+.mobile-header-back:focus-visible,
+.mobile-header-action:focus-visible {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+.mobile-header.gradient .mobile-header-back:focus-visible,
+.mobile-header.landing .mobile-header-back:focus-visible,
+.mobile-header.gradient .mobile-header-action:focus-visible,
+.mobile-header.landing .mobile-header-action:focus-visible {
+  outline-color: white;
+} 
