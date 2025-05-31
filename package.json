@@ -1,7 +1,7 @@
 {
-  "name": "reddit-conversation-starter",
+  "name": "sayymore",
   "version": "1.0.0",
-  "description": "A React app that displays conversation-worthy Reddit posts from various subreddits",
+  "description": "Sayymore - Discover engaging conversation starters from Reddit to spark meaningful discussions",
   "main": "index.js",
   "scripts": {
     "start": "react-scripts start",
@@ -39,12 +39,14 @@
     ]
   },
   "keywords": [
+    "sayymore",
+    "conversation-starters",
     "reddit",
     "conversations",
     "react",
     "firebase",
     "stories"
   ],
-  "author": "Your Name",
+  "author": "Danny Goldfarb",
   "license": "MIT"
 }
