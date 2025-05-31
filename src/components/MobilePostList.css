@@ -36,7 +36,7 @@
   margin: 0;
 }
 
-/* Loading State */
+/* Enhanced Loading State with Smooth Animations */
 .post-list-loading {
   display: flex;
   flex-direction: column;
@@ -44,16 +44,17 @@
   justify-content: center;
   padding: 60px 20px;
   text-align: center;
+  animation: fadeIn 0.6s ease-out;
 }
 
 .loading-spinner {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border: 4px solid #e9ecef;
   border-top: 4px solid #667eea;
   border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 16px;
+  animation: spin 1s linear infinite, pulse 2s ease-in-out infinite;
+  margin-bottom: 20px;
 }
 
 @keyframes spin {
@@ -61,152 +62,226 @@
   100% { transform: rotate(360deg); }
 }
 
-.post-list-loading p {
-  color: #666;
-  font-size: 1rem;
-  margin: 0;
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
 }
 
-/* Posts List */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes cardHover {
+  0% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-2px) scale(1.02); }
+  100% { transform: translateY(-4px) scale(1.02); }
+}
+
+.post-list-loading p {
+  color: #667eea;
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin: 0;
+  animation: fadeIn 0.8s ease-out 0.3s both;
+}
+
+/* Enhanced Posts List with Staggered Animation */
 .posts-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
   margin-bottom: 30px;
 }
 
+/* Enhanced Post Cards with Better Visual Hierarchy */
 .post-card {
   background: white;
   border: none;
-  border-radius: 16px;
-  padding: 20px;
+  border-radius: 20px;
+  padding: 24px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.04);
   text-align: left;
   width: 100%;
   position: relative;
   overflow: hidden;
+  min-height: 140px; /* Ensure minimum 44px touch target with content */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  animation: slideInUp 0.6s ease-out;
+  border-left: 4px solid transparent;
 }
+
+/* Staggered animation for multiple cards */
+.post-card:nth-child(1) { animation-delay: 0.1s; }
+.post-card:nth-child(2) { animation-delay: 0.2s; }
+.post-card:nth-child(3) { animation-delay: 0.3s; }
 
 .post-card:hover,
 .post-card:active {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
-  border-left: 5px solid #667eea;
+  animation: cardHover 0.4s ease-out forwards;
+  box-shadow: 
+    0 12px 32px rgba(102, 126, 234, 0.15),
+    0 6px 16px rgba(102, 126, 234, 0.1);
+  border-left: 4px solid #667eea;
 }
 
+.post-card:active {
+  transform: translateY(-2px) scale(0.98);
+}
+
+/* Enhanced Post Header with Better Spacing */
 .post-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
 .post-number {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 700;
-  padding: 6px 12px;
-  border-radius: 12px;
-  min-width: 40px;
+  padding: 8px 14px;
+  border-radius: 14px;
+  min-width: 44px; /* Minimum touch target */
+  min-height: 32px;
   text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
 
 .post-meta {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .post-score {
-  background: rgba(40, 167, 69, 0.1);
-  color: #28a745;
-  font-size: 0.8rem;
+  background: rgba(40, 167, 69, 0.12);
+  color: #1e7e34;
+  font-size: 0.85rem;
   font-weight: 600;
-  padding: 4px 8px;
-  border-radius: 8px;
+  padding: 6px 12px;
+  border-radius: 12px;
   border: 1px solid rgba(40, 167, 69, 0.2);
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
 }
 
 .post-subreddit {
-  background: rgba(102, 126, 234, 0.1);
-  color: #667eea;
-  font-size: 0.8rem;
+  background: rgba(102, 126, 234, 0.12);
+  color: #5a6fd8;
+  font-size: 0.85rem;
   font-weight: 600;
-  padding: 4px 8px;
-  border-radius: 8px;
+  padding: 6px 12px;
+  border-radius: 12px;
   border: 1px solid rgba(102, 126, 234, 0.2);
-}
-
-.post-title {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #2c3e50;
-  line-height: 1.4;
-  margin: 0 0 16px 0;
-  min-height: 50px;
+  min-height: 32px;
   display: flex;
   align-items: center;
+  white-space: nowrap;
 }
 
+/* Enhanced Typography for Post Title */
+.post-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1a202c;
+  line-height: 1.5;
+  margin: 0 0 20px 0;
+  min-height: 60px;
+  display: flex;
+  align-items: flex-start;
+  letter-spacing: -0.02em;
+  word-break: break-word;
+  flex-grow: 1;
+}
+
+/* Enhanced Post Footer */
 .post-footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-top: auto;
+  padding-top: 8px;
+  border-top: 1px solid #f1f3f4;
 }
 
 .post-hint {
-  font-size: 0.85rem;
-  color: #666;
+  font-size: 0.9rem;
+  color: #6b7280;
   font-style: italic;
+  font-weight: 500;
 }
 
 .post-arrow {
   color: #667eea;
   font-weight: bold;
-  font-size: 1.4rem;
-  transition: transform 0.3s ease;
+  font-size: 1.6rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .post-card:hover .post-arrow,
 .post-card:active .post-arrow {
-  transform: translateX(6px);
+  transform: translateX(8px) scale(1.2);
+  color: #5a6fd8;
 }
 
-/* No Posts Message */
+/* Enhanced No Posts Message */
 .no-posts-message {
   text-align: center;
-  padding: 60px 20px;
+  padding: 60px 24px;
   background: white;
-  border-radius: 16px;
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+  border-radius: 20px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
   margin-bottom: 30px;
+  animation: fadeIn 0.6s ease-out;
 }
 
 .no-posts-message h3 {
   color: #667eea;
-  margin-bottom: 12px;
-  font-size: 1.3rem;
+  margin-bottom: 16px;
+  font-size: 1.4rem;
+  font-weight: 700;
 }
 
 .no-posts-message p {
-  color: #666;
+  color: #6b7280;
   margin: 0;
-  font-size: 1rem;
-  line-height: 1.5;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  font-weight: 500;
 }
 
-/* Action Buttons */
+/* Enhanced Action Buttons with Better Touch Targets */
 .post-list-actions {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
   margin-top: 30px;
   margin-bottom: 20px;
-  padding-top: 20px;
+  padding-top: 24px;
   padding-bottom: 20px;
   border-top: 1px solid #e9ecef;
 }
@@ -215,19 +290,42 @@
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
-  border-radius: 16px;
-  padding: 16px 24px;
-  font-weight: 600;
+  border-radius: 20px;
+  padding: 18px 28px;
+  min-height: 56px; /* Enhanced touch target */
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 1rem;
-  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.2);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 1.1rem;
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.25);
+  letter-spacing: -0.01em;
+  position: relative;
+  overflow: hidden;
+}
+
+.fresh-posts-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.6s;
+}
+
+.fresh-posts-btn:hover::before {
+  left: 100%;
 }
 
 .fresh-posts-btn:hover,
 .fresh-posts-btn:active {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 32px rgba(102, 126, 234, 0.35);
+}
+
+.fresh-posts-btn:active {
+  transform: translateY(-2px) scale(0.98);
 }
 
 .fresh-posts-btn:disabled {
@@ -236,27 +334,37 @@
   cursor: not-allowed;
 }
 
+.fresh-posts-btn:disabled::before {
+  display: none;
+}
+
 .back-btn {
   background: linear-gradient(135deg, #6c757d 0%, #5a6268 100%);
   color: white;
   border: none;
-  border-radius: 16px;
-  padding: 14px 24px;
+  border-radius: 20px;
+  padding: 16px 28px;
+  min-height: 52px; /* Enhanced touch target */
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  font-size: 0.95rem;
-  box-shadow: 0 3px 12px rgba(108, 117, 125, 0.2);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 1rem;
+  box-shadow: 0 4px 16px rgba(108, 117, 125, 0.2);
   width: 100%;
+  letter-spacing: -0.01em;
 }
 
 .back-btn:hover,
 .back-btn:active {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
+  transform: translateY(-3px) scale(1.01);
+  box-shadow: 0 8px 24px rgba(108, 117, 125, 0.3);
 }
 
-/* Mobile Responsive */
+.back-btn:active {
+  transform: translateY(-1px) scale(0.99);
+}
+
+/* Mobile Responsive Enhancements */
 @media (max-width: 480px) {
   .mobile-post-list-content {
     padding: 16px;
@@ -267,42 +375,52 @@
   }
   
   .filter-title {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
   }
   
   .filter-subtitle {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
   }
   
   .post-card {
-    padding: 16px;
-    border-radius: 12px;
+    padding: 20px;
+    border-radius: 16px;
+    min-height: 120px;
   }
   
   .post-number {
-    padding: 5px 10px;
-    font-size: 0.8rem;
+    padding: 7px 12px;
+    font-size: 0.85rem;
+    min-width: 40px;
+    min-height: 30px;
   }
   
   .post-title {
-    font-size: 1rem;
-    min-height: 45px;
+    font-size: 1.1rem;
+    min-height: 50px;
   }
   
   .post-meta {
-    gap: 6px;
+    gap: 8px;
   }
   
   .post-score,
   .post-subreddit {
-    font-size: 0.75rem;
-    padding: 3px 6px;
+    font-size: 0.8rem;
+    padding: 5px 10px;
+    min-height: 30px;
   }
   
-  .fresh-posts-btn,
+  .fresh-posts-btn {
+    padding: 16px 24px;
+    min-height: 52px;
+    font-size: 1rem;
+  }
+  
   .back-btn {
-    padding: 14px 20px;
-    font-size: 0.9rem;
+    padding: 14px 24px;
+    min-height: 48px;
+    font-size: 0.95rem;
   }
 }
 
@@ -311,7 +429,7 @@
   .post-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 8px;
+    gap: 12px;
   }
   
   .post-meta {
@@ -320,7 +438,41 @@
   }
   
   .post-title {
-    font-size: 0.95rem;
-    min-height: 40px;
+    font-size: 1rem;
+    min-height: 45px;
+  }
+  
+  .post-card {
+    padding: 18px;
+    min-height: 110px;
+  }
+}
+
+/* Loading Animation for Fresh Posts */
+.posts-list.loading .post-card {
+  opacity: 0.5;
+  pointer-events: none;
+  animation: none;
+}
+
+.posts-list.refreshing .post-card {
+  animation: slideInUp 0.6s ease-out;
+}
+
+/* Touch feedback improvements */
+@media (pointer: coarse) {
+  .post-card {
+    min-height: 150px; /* Larger touch targets on touch devices */
+  }
+  
+  .fresh-posts-btn,
+  .back-btn {
+    min-height: 56px; /* iOS/Android standard minimum */
+  }
+  
+  .post-number,
+  .post-score,
+  .post-subreddit {
+    min-height: 44px; /* iOS minimum touch target */
   }
 } 

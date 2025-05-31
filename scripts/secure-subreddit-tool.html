@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Sayymore - Subreddit Management Tool</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #667eea;
+            margin: 0;
+            font-size: 2rem;
+        }
+        .header p {
+            color: #666;
+            margin: 10px 0 0 0;
+        }
+        .config-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border-left: 4px solid #667eea;
+        }
+        .config-section h3 {
+            margin-top: 0;
+            color: #667eea;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .input-group input, .input-group textarea, .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        .input-group input:focus, .input-group textarea:focus, .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        .category-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .category-btn {
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        .category-btn:hover {
+            border-color: #667eea;
+            background: #f8f9fa;
+        }
+        .category-btn.selected {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        .category-btn.new {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+        .new-category-input {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: #e8f5e8;
+            border-radius: 8px;
+        }
+        .new-category-input.show {
+            display: block;
+        }
+        .validation-message {
+            margin-top: 8px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            display: none;
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .validation-message.success {
+            background: #d4edda;
+            color: #155724;
+            border-color: #c3e6cb;
+        }
+        .validation-message.show {
+            display: block;
+        }
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+        .btn:hover { 
+            background: #5a6fd8;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        .btn:disabled { 
+            background: #6c757d; 
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .btn.danger {
+            background: #dc3545;
+        }
+        .btn.danger:hover {
+            background: #c82333;
+        }
+        .status {
+            padding: 12px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: 600;
+        }
+        .status.success { 
+            background: #d4edda; 
+            color: #155724; 
+            border: 1px solid #c3e6cb; 
+        }
+        .status.error { 
+            background: #f8d7da; 
+            color: #721c24; 
+            border: 1px solid #f5c6cb; 
+        }
+        .status.warning { 
+            background: #fff3cd; 
+            color: #856404; 
+            border: 1px solid #ffeaa7; 
+        }
+        .current-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .config-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            border: 2px solid #e9ecef;
+        }
+        .firebase-config {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+        }
+        .firebase-config textarea {
+            font-family: monospace;
+            font-size: 12px;
+            height: 120px;
+        }
+        .connect-btn {
+            background: #28a745;
+        }
+        .connect-btn:hover {
+            background: #218838;
+        }
+        .connection-status {
+            margin-top: 10px;
+            font-weight: 600;
+        }
+        .connection-status.connected {
+            color: #28a745;
+        }
+        .connection-status.disconnected {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Sayymore - Subreddit Management Tool</h1>
+            <p>Securely add new subreddits to your conversation starter database</p>
+        </div>
+
+        <!-- Firebase Configuration Section -->
+        <div class="config-section firebase-config">
+            <h3>🔐 Firebase Configuration</h3>
+            <p><strong>Security:</strong> Paste your Firebase config here. It's only used locally and never stored.</p>
+            
+            <div class="input-group">
+                <label for="firebaseConfig">Firebase Config (from your .env file):</label>
+                <textarea id="firebaseConfig" placeholder="Paste your Firebase config object here, e.g.:
+{
+  apiKey: 'your-api-key',
+  authDomain: 'your-project.firebaseapp.com',
+  projectId: 'your-project-id',
+  // ... other config
+}"></textarea>
+            </div>
+            
+            <button class="btn connect-btn" onclick="connectToFirebase()">🔌 Connect to Firebase</button>
+            <div id="connectionStatus" class="connection-status disconnected">❌ Not Connected</div>
+        </div>
+
+        <!-- Current Database Stats -->
+        <div class="config-section">
+            <h3>📊 Current Database Stats</h3>
+            <div id="currentStats" class="current-stats">
+                <div class="config-item">Connect Firebase first</div>
+            </div>
+        </div>
+
+        <!-- Add Subreddit Form -->
+        <div class="config-section">
+            <h3>➕ Add New Subreddit</h3>
+            
+            <form id="addSubredditForm">
+                <div class="input-group">
+                    <label for="subredditName">Subreddit Name (without r/):</label>
+                    <input type="text" id="subredditName" placeholder="e.g., personalfinance" onblur="validateSubreddit()">
+                    <div id="subredditValidation" class="validation-message"></div>
+                </div>
+
+                <div class="input-group">
+                    <label for="displayName">Display Name:</label>
+                    <input type="text" id="displayName" placeholder="e.g., Personal Finance">
+                </div>
+
+                <div class="input-group">
+                    <label for="description">Description:</label>
+                    <textarea id="description" rows="3" placeholder="Brief description of the subreddit content..."></textarea>
+                </div>
+
+                <div class="input-group">
+                    <label>Category:</label>
+                    <div id="categoryOptions" class="category-options">
+                        <div class="config-item">Connect Firebase to load categories</div>
+                    </div>
+                    
+                    <div id="newCategoryInput" class="new-category-input">
+                        <div class="input-group">
+                            <label for="newCategoryId">New Category ID (lowercase, no spaces):</label>
+                            <input type="text" id="newCategoryId" placeholder="e.g., technology" onblur="validateNewCategory()">
+                        </div>
+                        <div class="input-group">
+                            <label for="newCategoryName">New Category Display Name:</label>
+                            <input type="text" id="newCategoryName" placeholder="e.g., Technology">
+                        </div>
+                        <div id="categoryValidation" class="validation-message"></div>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="postCount">Estimated Posts to Add:</label>
+                    <input type="number" id="postCount" min="1" max="500" value="100">
+                </div>
+
+                <button type="submit" class="btn" id="submitBtn" disabled>🚀 Add Subreddit</button>
+            </form>
+        </div>
+
+        <div id="status"></div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        // Global Firebase variables
+        let db = null;
+        let currentCategories = [];
+        let selectedCategory = null;
+        let isNewCategory = false;
+
+        // Import Firebase modules
+        const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js');
+        const { getFirestore, collection, query, where, getDocs, doc, setDoc } = await import('https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js');
+
+        function showStatus(message, type = 'warning') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+        }
+
+        function log(message) {
+            console.log(message);
+            showStatus(message, 'warning');
+        }
+
+        function capitalizeWords(str) {
+            return str.replace(/\b\w/g, l => l.toUpperCase());
+        }
+
+        window.connectToFirebase = async function() {
+            const configText = document.getElementById('firebaseConfig').value.trim();
+            const statusDiv = document.getElementById('connectionStatus');
+            
+            if (!configText) {
+                showStatus('Please paste your Firebase configuration', 'error');
+                return;
+            }
+
+            try {
+                // Parse the Firebase config
+                let firebaseConfig;
+                if (configText.startsWith('{')) {
+                    firebaseConfig = JSON.parse(configText);
+                } else {
+                    // Try to extract from env format
+                    const lines = configText.split('\n');
+                    firebaseConfig = {};
+                    lines.forEach(line => {
+                        if (line.includes('REACT_APP_FIREBASE_')) {
+                            const [key, value] = line.split('=');
+                            const firebaseKey = key.replace('REACT_APP_FIREBASE_', '').toLowerCase()
+                                .replace('_', '');
+                            if (firebaseKey === 'apikey') firebaseConfig.apiKey = value;
+                            if (firebaseKey === 'authdomain') firebaseConfig.authDomain = value;
+                            if (firebaseKey === 'projectid') firebaseConfig.projectId = value;
+                            if (firebaseKey === 'storagebucket') firebaseConfig.storageBucket = value;
+                            if (firebaseKey === 'messagingsenderid') firebaseConfig.messagingSenderId = value;
+                            if (firebaseKey === 'appid') firebaseConfig.appId = value;
+                        }
+                    });
+                }
+
+                // Initialize Firebase
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+
+                // Test connection
+                const testQuery = query(collection(db, 'posts'));
+                const testSnapshot = await getDocs(testQuery);
+
+                statusDiv.textContent = '✅ Connected Successfully';
+                statusDiv.className = 'connection-status connected';
+                
+                showStatus('✅ Firebase connected successfully!', 'success');
+                
+                // Load current configuration
+                await loadCurrentConfig();
+                
+            } catch (error) {
+                statusDiv.textContent = '❌ Connection Failed';
+                statusDiv.className = 'connection-status disconnected';
+                showStatus('❌ Firebase connection failed: ' + error.message, 'error');
+                db = null;
+            }
+        };
+
+        async function loadCurrentConfig() {
+            if (!db) return;
+            
+            showStatus('Loading current configuration...', 'warning');
+            
+            try {
+                const categoryCounts = {};
+                const subredditList = new Set();
+
+                const sampleQuery = query(collection(db, 'posts'));
+                const sampleSnapshot = await getDocs(sampleQuery);
+                
+                sampleSnapshot.docs.forEach(doc => {
+                    const data = doc.data();
+                    const category = data.category || 'unknown';
+                    const subreddit = data.subreddit;
+                    
+                    categoryCounts[category] = (categoryCounts[category] || 0) + 1;
+                    subredditList.add(subreddit);
+                });
+
+                currentCategories = Object.keys(categoryCounts).filter(cat => cat !== 'unknown').sort();
+
+                const statsHtml = `
+                    <div class="config-item">📂 ${currentCategories.length} Categories</div>
+                    <div class="config-item">📚 ${subredditList.size} Subreddits</div>
+                    <div class="config-item">📝 ${sampleSnapshot.docs.length} Posts</div>
+                `;
+                document.getElementById('currentStats').innerHTML = statsHtml;
+
+                loadCategoryOptions();
+                
+                showStatus('Configuration loaded successfully!', 'success');
+            } catch (error) {
+                showStatus('Error loading configuration: ' + error.message, 'error');
+            }
+        }
+
+        function loadCategoryOptions() {
+            const categoryOptionsHtml = currentCategories.map(category => `
+                <div class="category-btn" onclick="selectCategory('${category}')">
+                    ${capitalizeWords(category)}
+                </div>
+            `).join('') + `
+                <div class="category-btn new" onclick="selectNewCategory()">
+                    ➕ Create New Category
+                </div>
+            `;
+
+            document.getElementById('categoryOptions').innerHTML = categoryOptionsHtml;
+        }
+
+        window.selectCategory = function(category) {
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('selected'));
+            event.target.classList.add('selected');
+            selectedCategory = category;
+            isNewCategory = false;
+            document.getElementById('newCategoryInput').classList.remove('show');
+            validateForm();
+        };
+
+        window.selectNewCategory = function() {
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('selected'));
+            event.target.classList.add('selected');
+            selectedCategory = null;
+            isNewCategory = true;
+            document.getElementById('newCategoryInput').classList.add('show');
+            validateForm();
+        };
+
+        window.validateSubreddit = async function() {
+            if (!db) return false;
+            
+            const subredditName = document.getElementById('subredditName').value.trim();
+            const validation = document.getElementById('subredditValidation');
+            
+            if (!subredditName) {
+                validation.textContent = 'Please enter a subreddit name';
+                validation.classList.add('show');
+                validation.classList.remove('success');
+                return false;
+            }
+
+            try {
+                const existingQuery = query(collection(db, 'posts'), where('subreddit', '==', subredditName));
+                const existingSnapshot = await getDocs(existingQuery);
+                
+                if (existingSnapshot.docs.length > 0) {
+                    validation.textContent = `⚠️ Subreddit already exists with ${existingSnapshot.docs.length} posts`;
+                    validation.classList.add('show');
+                    validation.classList.remove('success');
+                    return false;
+                }
+
+                validation.textContent = '✅ Subreddit name looks good!';
+                validation.classList.add('show', 'success');
+                return true;
+                
+            } catch (error) {
+                validation.textContent = 'Error validating subreddit: ' + error.message;
+                validation.classList.add('show');
+                validation.classList.remove('success');
+                return false;
+            }
+        };
+
+        function validateNewCategory() {
+            const categoryId = document.getElementById('newCategoryId').value.trim().toLowerCase();
+            const validation = document.getElementById('categoryValidation');
+            
+            if (!categoryId) {
+                validation.classList.remove('show');
+                return false;
+            }
+
+            if (currentCategories.includes(categoryId)) {
+                validation.textContent = 'Category already exists';
+                validation.classList.add('show');
+                validation.classList.remove('success');
+                return false;
+            }
+
+            if (!/^[a-z]+$/.test(categoryId)) {
+                validation.textContent = 'Category ID must be lowercase letters only';
+                validation.classList.add('show');
+                validation.classList.remove('success');
+                return false;
+            }
+
+            validation.textContent = '✅ New category looks good!';
+            validation.classList.add('show', 'success');
+            return true;
+        }
+
+        function validateForm() {
+            const subreddit = document.getElementById('subredditName').value.trim();
+            const displayName = document.getElementById('displayName').value.trim();
+            const description = document.getElementById('description').value.trim();
+            const postCount = document.getElementById('postCount').value;
+            
+            let isValid = subreddit && displayName && description && postCount && db;
+            
+            if (isNewCategory) {
+                const newCategoryId = document.getElementById('newCategoryId').value.trim();
+                const newCategoryName = document.getElementById('newCategoryName').value.trim();
+                isValid = isValid && newCategoryId && newCategoryName && validateNewCategory();
+            } else {
+                isValid = isValid && selectedCategory;
+            }
+            
+            document.getElementById('submitBtn').disabled = !isValid;
+        }
+
+        // Event listeners
+        document.getElementById('subredditName').addEventListener('input', validateForm);
+        document.getElementById('displayName').addEventListener('input', validateForm);
+        document.getElementById('description').addEventListener('input', validateForm);
+        document.getElementById('newCategoryId').addEventListener('input', validateNewCategory);
+        document.getElementById('newCategoryName').addEventListener('input', validateForm);
+
+        document.getElementById('addSubredditForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            if (!db) {
+                showStatus('Please connect to Firebase first', 'error');
+                return;
+            }
+            
+            const subredditData = {
+                name: document.getElementById('subredditName').value.trim(),
+                displayName: document.getElementById('displayName').value.trim(),
+                description: document.getElementById('description').value.trim(),
+                category: isNewCategory ? document.getElementById('newCategoryId').value.trim() : selectedCategory,
+                categoryName: isNewCategory ? document.getElementById('newCategoryName').value.trim() : capitalizeWords(selectedCategory),
+                estimatedPosts: parseInt(document.getElementById('postCount').value),
+                dateAdded: new Date().toISOString(),
+                status: 'pending_scraping'
+            };
+            
+            try {
+                showStatus('Adding subreddit configuration...', 'warning');
+                
+                // Add to subreddit_configs collection
+                await setDoc(doc(db, 'subreddit_configs', subredditData.name), subredditData);
+                
+                showStatus(`✅ Successfully added r/${subredditData.name} to the database!`, 'success');
+                
+                // Reset form
+                document.getElementById('addSubredditForm').reset();
+                document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('selected'));
+                selectedCategory = null;
+                isNewCategory = false;
+                
+                // Reload configuration
+                await loadCurrentConfig();
+                
+            } catch (error) {
+                showStatus('❌ Error adding subreddit: ' + error.message, 'error');
+            }
+        });
+
+        // Initialize
+        window.addEventListener('load', () => {
+            showStatus('🚀 Tool loaded. Please connect to Firebase to begin.', 'warning');
+        });
+    </script>
+</body>
+</html> 

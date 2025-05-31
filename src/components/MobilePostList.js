@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './MobilePostList.css';
 
 const MobilePostList = ({ 
@@ -10,6 +10,24 @@ const MobilePostList = ({
   onBackToLanding,
   onGetFreshPosts
 }) => {
+  
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [animationKey, setAnimationKey] = useState(0);
+
+  // Reset animation when posts change
+  useEffect(() => {
+    if (!loading && posts.length > 0) {
+      setAnimationKey(prev => prev + 1);
+      setIsRefreshing(true);
+      
+      // Reset refreshing state after animation
+      const timer = setTimeout(() => {
+        setIsRefreshing(false);
+      }, 600);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [posts, loading]);
   
   // Get the current filter info for display
   const getFilterDisplayName = () => {
@@ -56,8 +74,11 @@ const MobilePostList = ({
     }
   };
 
-  const handleFreshPostsClick = () => {
-    if (onGetFreshPosts) {
+  const handleFreshPostsClick = async () => {
+    if (onGetFreshPosts && !loading) {
+      setIsRefreshing(false);
+      
+      // Call the parent function
       onGetFreshPosts();
       
       // Scroll to top of the content container
@@ -69,52 +90,80 @@ const MobilePostList = ({
             behavior: 'smooth'
           });
         }
-      }, 100); // Small delay to ensure content loads first
+      }, 100);
     }
   };
 
-  // Function to truncate post titles for mobile display
-  const truncateTitle = (title, maxLength = 80) => {
-    if (!title) return 'Untitled';
+  // Enhanced function to truncate post titles
+  const truncateTitle = (title, maxLength = 85) => {
+    if (!title) return 'Untitled Story';
     if (title.length <= maxLength) return title;
-    return title.substring(0, maxLength).trim() + '...';
+    
+    // Find the last complete word within the limit
+    const truncated = title.substring(0, maxLength);
+    const lastSpace = truncated.lastIndexOf(' ');
+    
+    return lastSpace > maxLength * 0.8 
+      ? truncated.substring(0, lastSpace) + '...'
+      : truncated + '...';
   };
 
-  // Function to format score for display
+  // Enhanced function to format score for display
   const formatScore = (score) => {
     if (!score) return '0';
+    if (score >= 10000) {
+      return `${Math.round(score / 1000)}k`;
+    }
     if (score >= 1000) {
       return `${(score / 1000).toFixed(1)}k`;
     }
     return score.toString();
   };
 
+  // Enhanced function to format subreddit display
+  const formatSubreddit = (subreddit) => {
+    if (!subreddit) return 'unknown';
+    // Capitalize first letter and handle long names
+    const formatted = subreddit.charAt(0).toUpperCase() + subreddit.slice(1);
+    return formatted.length > 12 ? formatted.substring(0, 12) + '...' : formatted;
+  };
+
   return (
     <div className="mobile-post-list">
       <div className="mobile-post-list-content">
         
-        {/* Loading State */}
+        {/* Enhanced Loading State */}
         {loading && (
           <div className="post-list-loading">
             <div className="loading-spinner"></div>
-            <p>Finding great conversation starters...</p>
+            <p>Finding amazing conversation starters...</p>
           </div>
         )}
 
-        {/* Posts List */}
+        {/* Enhanced Posts List with Animation */}
         {!loading && posts.length > 0 && (
-          <div className="posts-list">
+          <div 
+            key={animationKey}
+            className={`posts-list ${isRefreshing ? 'refreshing' : ''}`}
+          >
             {posts.slice(0, 3).map((post, index) => (
               <button
-                key={post.id}
+                key={`${post.id}-${animationKey}`}
                 className="post-card"
                 onClick={() => handlePostClick(post)}
+                style={{
+                  animationDelay: `${0.1 + (index * 0.1)}s`
+                }}
               >
                 <div className="post-header">
                   <span className="post-number">#{index + 1}</span>
                   <div className="post-meta">
-                    <span className="post-score">↑ {formatScore(post.score)}</span>
-                    <span className="post-subreddit">r/{post.subreddit}</span>
+                    <span className="post-score">
+                      ↑ {formatScore(post.score)}
+                    </span>
+                    <span className="post-subreddit">
+                      r/{formatSubreddit(post.subreddit)}
+                    </span>
                   </div>
                 </div>
                 
@@ -123,7 +172,9 @@ const MobilePostList = ({
                 </h3>
                 
                 <div className="post-footer">
-                  <span className="post-hint">Tap to read full story</span>
+                  <span className="post-hint">
+                    Tap to read the full story
+                  </span>
                   <span className="post-arrow">→</span>
                 </div>
               </button>
@@ -131,15 +182,18 @@ const MobilePostList = ({
           </div>
         )}
 
-        {/* No Posts State */}
+        {/* Enhanced No Posts State */}
         {!loading && posts.length === 0 && (
           <div className="no-posts-message">
             <h3>🤔 No stories found</h3>
-            <p>Try selecting a different category or subreddit</p>
+            <p>
+              Try selecting a different category or subreddit to discover 
+              new conversation starters!
+            </p>
           </div>
         )}
 
-        {/* Action Buttons */}
+        {/* Enhanced Action Buttons */}
         <div className="post-list-actions">
           {posts.length > 0 && (
             <button 
@@ -147,7 +201,7 @@ const MobilePostList = ({
               onClick={handleFreshPostsClick}
               disabled={loading}
             >
-              🎲 Get 3 Fresh Posts
+              {loading ? '🔄 Loading...' : '🎲 Get 3 Fresh Stories'}
             </button>
           )}
           
