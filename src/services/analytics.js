@@ -23,13 +23,12 @@ class AnalyticsService {
 
       // Initialize gtag
       window.dataLayer = window.dataLayer || [];
-      function gtag() {
+      window.gtag = function() {
         window.dataLayer.push(arguments);
-      }
-      window.gtag = gtag;
+      };
 
-      gtag('js', new Date());
-      gtag('config', this.GA_TRACKING_ID, {
+      window.gtag('js', new Date());
+      window.gtag('config', this.GA_TRACKING_ID, {
         page_title: 'Reddit Conversations',
         page_location: window.location.href,
         custom_map: {
@@ -48,7 +47,7 @@ class AnalyticsService {
 
   // Track page views
   trackPageView(page_title, page_location) {
-    if (!this.isProduction || !window.gtag) return;
+    if (!this.isProduction || !window.gtag || typeof window.gtag !== 'function') return;
 
     try {
       window.gtag('config', this.GA_TRACKING_ID, {
@@ -63,7 +62,7 @@ class AnalyticsService {
 
   // Track custom events
   trackEvent(action, category, label = null, value = null, custom_parameters = {}) {
-    if (!this.isProduction || !window.gtag) return;
+    if (!this.isProduction || !window.gtag || typeof window.gtag !== 'function') return;
 
     try {
       const eventData = {
