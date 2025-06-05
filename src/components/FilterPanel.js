@@ -7,9 +7,11 @@ const FilterPanel = ({
   subreddits = [],
   selectedCategory,
   selectedSubreddit,
+  selectedPostType,
   searchTerm,
   onCategoryChange,
   onSubredditChange,
+  onPostTypeChange,
   onSearchChange,
   onClear,
   onLoadMore,
@@ -43,6 +45,12 @@ const FilterPanel = ({
     }
   };
 
+  const handlePostTypeChange = (event) => {
+    if (onPostTypeChange) {
+      onPostTypeChange(event.target.value || null);
+    }
+  };
+
   const handleClearAll = () => {
     setLocalSearch('');
     if (onClear) {
@@ -50,7 +58,7 @@ const FilterPanel = ({
     }
   };
 
-  const hasActiveFilters = selectedCategory || selectedSubreddit || searchTerm;
+  const hasActiveFilters = selectedCategory || selectedSubreddit || selectedPostType || searchTerm;
 
   return (
     <div className="filter-panel">
@@ -60,7 +68,7 @@ const FilterPanel = ({
           <h3>Find Stories</h3>
           {hasActiveFilters && (
             <span className="active-filters-count">
-              {[selectedCategory, selectedSubreddit, searchTerm].filter(Boolean).length} active
+              {[selectedCategory, selectedSubreddit, selectedPostType, searchTerm].filter(Boolean).length} active
             </span>
           )}
         </div>
@@ -154,6 +162,20 @@ const FilterPanel = ({
                 r/{subreddit}
               </option>
             ))}
+          </select>
+        </div>
+
+        {/* Post Type filter */}
+        <div className="filter-section">
+          <label className="filter-label">Post Type</label>
+          <select
+            value={selectedPostType || ''}
+            onChange={handlePostTypeChange}
+            className="post-type-select"
+          >
+            <option value="">All posts</option>
+            <option value="top">🏆 Top Posts Only</option>
+            <option value="hot">🔥 Hot Posts Only</option>
           </select>
         </div>
 

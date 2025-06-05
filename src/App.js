@@ -10,6 +10,11 @@ import MobileLanding from './components/MobileLanding';
 import MobilePostList from './components/MobilePostList';
 import MobilePostView from './components/MobilePostView';
 import MobileHeader from './components/MobileHeader';
+import FloatingAudioControl from './components/FloatingAudioControl';
+import DesktopPostView from './components/DesktopPostView';
+
+// Contexts
+import { TTSProvider, useTTSContext } from './contexts/TTSContext';
 
 // Services
 import { postService } from './services/postService';
@@ -46,9 +51,13 @@ const useMobileDetection = () => {
   return isMobile;
 };
 
-function App() {
+// App Content Component (needs to be inside TTSProvider to use context)
+function AppContent() {
   // Mobile detection
   const isMobile = useMobileDetection();
+  
+  // TTS Context
+  const { speaking, loading: ttsLoading } = useTTSContext();
 
   // State
   const [posts, setPosts] = useState([]);
@@ -62,6 +71,7 @@ function App() {
   // Filters
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedSubreddit, setSelectedSubreddit] = useState('');
+  const [selectedPostType, setSelectedPostType] = useState('top');
   const [searchTerm, setSearchTerm] = useState('');
   
   // Loading and pagination
@@ -76,6 +86,24 @@ function App() {
   const [mobileView, setMobileView] = useState('landing'); // 'landing', 'postList', 'postView'
   const [selectedPost, setSelectedPost] = useState(null);
   const [mobilePostList, setMobilePostList] = useState([]);
+
+  // Desktop modal state
+  const [desktopModalOpen, setDesktopModalOpen] = useState(false);
+  const [desktopSelectedPost, setDesktopSelectedPost] = useState(null);
+
+  // Add body class when audio is playing to add bottom padding
+  useEffect(() => {
+    if (speaking || ttsLoading) {
+      document.body.classList.add('audio-playing');
+    } else {
+      document.body.classList.remove('audio-playing');
+    }
+    
+    // Cleanup on unmount
+    return () => {
+      document.body.classList.remove('audio-playing');
+    };
+  }, [speaking, ttsLoading]);
 
   // Initialize data
   useEffect(() => {
@@ -129,6 +157,7 @@ function App() {
         category: selectedCategory === 'all' ? null : selectedCategory,
         subreddit: selectedSubreddit,
         searchTerm: searchTerm || null,
+        postType: selectedPostType || null,
         lastDoc: null, // No longer using pagination, always get fresh random posts
         limitCount: 12
       });
@@ -137,6 +166,7 @@ function App() {
         category: selectedCategory === 'all' ? null : selectedCategory,
         subreddit: selectedSubreddit,
         searchTerm: searchTerm || null,
+        postType: selectedPostType || null,
         reset
       });
 
@@ -161,11 +191,11 @@ function App() {
     } finally {
       setLoadingMore(false);
     }
-  }, [selectedCategory, selectedSubreddit, searchTerm]);
+  }, [selectedCategory, selectedSubreddit, searchTerm, selectedPostType]);
 
   // Effect to reload posts when filters change
   useEffect(() => {
-    console.log('Filter changed:', { selectedCategory, selectedSubreddit, searchTerm });
+    console.log('Filter changed:', { selectedCategory, selectedSubreddit, searchTerm, selectedPostType });
     
     if (!loading) {
       // Clear current posts immediately when filters change
@@ -177,7 +207,7 @@ function App() {
       // Load fresh filtered posts
       loadPosts(true);
     }
-  }, [selectedCategory, selectedSubreddit, searchTerm]);
+  }, [selectedCategory, selectedSubreddit, searchTerm, selectedPostType]);
 
   // Event handlers
   const handleMarkAsRead = async (postId) => {
@@ -220,6 +250,7 @@ function App() {
   const handleClearFilters = () => {
     setSelectedCategory('all');
     setSelectedSubreddit('');
+    setSelectedPostType('top');
     setSearchTerm('');
   };
 
@@ -232,51 +263,79 @@ function App() {
 
   // Helper function to get filter display name for mobile header
   const getFilterDisplayName = () => {
+    let baseName = '';
+    
     if (selectedSubreddit) {
-      return `r/${selectedSubreddit}`;
-    }
-    if (selectedCategory && selectedCategory !== 'all') {
+      baseName = `r/${selectedSubreddit}`;
+    } else if (selectedCategory && selectedCategory !== 'all') {
       // Find category name from categories array
       const categoryObj = categories.find(cat => cat.id === selectedCategory);
       if (categoryObj) {
-        return categoryObj.name;
+        baseName = categoryObj.name;
+      } else {
+        // Fallback - convert category ID to display name
+        const categoryNames = {
+          'advice': 'Life Advice',
+          'relationships': 'Relationships',
+          'wedding': 'Wedding Planning',
+          'finance': 'Personal Finance',
+          'workplace': 'Workplace Stories',
+          'stories': 'Personal Stories',
+          'family': 'Family Drama',
+          'revenge': 'Revenge Stories',
+          'drama': 'Drama & Stories',
+          'neighbors': 'Neighbor Issues',
+          'debate': 'Debates & Discussions',
+          'morality': 'Moral Dilemmas',
+          'creepy': 'Creepy Encounters',
+          'misc': 'Miscellaneous',
+          'controversial': 'Controversial'
+        };
+        baseName = categoryNames[selectedCategory] || selectedCategory;
       }
-      // Fallback - convert category ID to display name
-      const categoryNames = {
-        'advice': 'Life Advice',
-        'relationships': 'Relationships',
-        'wedding': 'Wedding Planning',
-        'finance': 'Personal Finance',
-        'workplace': 'Workplace Stories',
-        'stories': 'Personal Stories',
-        'family': 'Family Drama',
-        'revenge': 'Revenge Stories',
-        'drama': 'Drama & Stories',
-        'neighbors': 'Neighbor Issues',
-        'debate': 'Debates & Discussions',
-        'morality': 'Moral Dilemmas',
-        'creepy': 'Creepy Encounters',
-        'misc': 'Miscellaneous',
-        'controversial': 'Controversial'
-      };
-      return categoryNames[selectedCategory] || selectedCategory;
+    } else {
+      baseName = 'All Stories';
     }
-    return 'All Stories';
+    
+    // Add post type modifier if selected
+    if (selectedPostType) {
+      if (selectedPostType === 'top') {
+        baseName = `🏆 Top ${baseName}`;
+      } else if (selectedPostType === 'hot') {
+        baseName = `🔥 Hot ${baseName}`;
+      }
+    }
+    
+    return baseName;
   };
 
   // Mobile navigation handlers
-  const handleMobileCategorySelect = (category) => {
+  const handleMobileCategorySelect = (category, postType = 'top') => {
     setSelectedCategory(category.id);
     setSelectedSubreddit(''); // Clear subreddit when selecting category
+    setSelectedPostType(postType); // Use the passed post type
     setMobileView('postList');
     analytics.trackCategorySelection(category, 'mobile');
   };
 
-  const handleMobileSubredditSelect = (subreddit) => {
+  const handleMobileSubredditSelect = (subreddit, postType = 'top') => {
     setSelectedSubreddit(subreddit);
     setSelectedCategory('all'); // Clear category when selecting subreddit
+    setSelectedPostType(postType); // Use the passed post type
     setMobileView('postList');
     analytics.trackSubredditSelection(subreddit, 'mobile');
+  };
+
+  const handleMobilePostTypeSelect = (postType, shouldNavigate = true) => {
+    setSelectedPostType(postType || 'top'); // Set post type filter
+    
+    // Only navigate if shouldNavigate is true (when called from the old interface)
+    if (shouldNavigate) {
+      setSelectedCategory('all'); // Clear category when selecting post type
+      setSelectedSubreddit(''); // Clear subreddit when selecting post type
+      setMobileView('postList');
+      analytics.trackCategorySelection({ id: postType || 'top', name: postType ? `${postType} posts` : 'Top Posts' }, 'mobile');
+    }
   };
 
   const handleMobileAnalyticsClick = () => {
@@ -295,6 +354,7 @@ function App() {
     setMobileView('landing');
     setSelectedCategory('all');
     setSelectedSubreddit('');
+    setSelectedPostType('top'); // Clear post type when going back to landing
     setSelectedPost(null); // Clear selected post
   };
 
@@ -309,6 +369,18 @@ function App() {
     
     // Trigger a fresh posts load
     loadPosts(true);
+  };
+
+  // Desktop modal handlers
+  const handleDesktopPostSelect = (post) => {
+    setDesktopSelectedPost(post);
+    setDesktopModalOpen(true);
+    analytics.trackPostView(post, 'desktop_modal');
+  };
+
+  const handleDesktopModalClose = () => {
+    setDesktopModalOpen(false);
+    setDesktopSelectedPost(null);
   };
 
   // Show initial loading screen
@@ -338,6 +410,9 @@ function App() {
             variant="gradient"
           />
           <AnalyticsDashboard />
+          
+          {/* Floating Audio Control - Available on analytics too */}
+          <FloatingAudioControl />
         </div>
       );
     }
@@ -363,6 +438,7 @@ function App() {
               subreddits={subreddits}
               onCategorySelect={handleMobileCategorySelect}
               onSubredditSelect={handleMobileSubredditSelect}
+              onPostTypeSelect={handleMobilePostTypeSelect}
               onAnalyticsClick={handleMobileAnalyticsClick}
             />
           </>
@@ -390,6 +466,7 @@ function App() {
               onPostSelect={handleMobilePostSelect}
               onBackToLanding={handleMobileBackToLanding}
               onGetFreshPosts={handleMobileGetFreshPosts}
+              onSubredditSelect={handleMobileSubredditSelect}
             />
           </>
         )}
@@ -413,9 +490,13 @@ function App() {
             <MobilePostView 
               post={selectedPost}
               onBackToPostList={handleMobileBackToPostList}
+              onSubredditSelect={handleMobileSubredditSelect}
             />
           </>
         )}
+
+        {/* Floating Audio Control - Available on all mobile screens */}
+        <FloatingAudioControl />
       </div>
     );
   }
@@ -447,7 +528,11 @@ function App() {
       </div>
 
       {currentView === 'analytics' ? (
-        <AnalyticsDashboard />
+        <>
+          <AnalyticsDashboard />
+          {/* Floating Audio Control - Available on analytics too */}
+          <FloatingAudioControl />
+        </>
       ) : (
         <div className="app-container">
           {/* Sidebar */}
@@ -457,9 +542,11 @@ function App() {
               subreddits={subreddits}
               selectedCategory={selectedCategory}
               selectedSubreddit={selectedSubreddit}
+              selectedPostType={selectedPostType}
               searchTerm={searchTerm}
               onCategoryChange={setSelectedCategory}
               onSubredditChange={setSelectedSubreddit}
+              onPostTypeChange={setSelectedPostType}
               onSearchChange={setSearchTerm}
               onClear={handleClearFilters}
               onLoadMore={handleLoadMore}
@@ -498,6 +585,7 @@ function App() {
                           isFavorite={userPreferences.favorites.includes(post.id)}
                           onMarkAsRead={handleMarkAsRead}
                           onToggleFavorite={handleToggleFavorite}
+                          onPostSelect={handleDesktopPostSelect}
                         />
                       ))}
                     </>
@@ -534,7 +622,26 @@ function App() {
           </div>
         </div>
       )}
+      
+      {/* Floating Audio Control - Available on all desktop screens */}
+      <FloatingAudioControl />
+
+      {/* Desktop Post View Modal */}
+      <DesktopPostView 
+        post={desktopSelectedPost}
+        isOpen={desktopModalOpen}
+        onClose={handleDesktopModalClose}
+        onSubredditSelect={setSelectedSubreddit}
+      />
     </div>
+  );
+}
+
+function App() {
+  return (
+    <TTSProvider>
+      <AppContent />
+    </TTSProvider>
   );
 }
 

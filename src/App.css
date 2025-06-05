@@ -248,6 +248,8 @@ body {
     flex-direction: column;
     overflow: hidden;
     background: #f8f9fa;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
   }
   
   /* Mobile content containers */
@@ -257,6 +259,8 @@ body {
     flex: 1;
     overflow-y: auto;
     background: #f8f9fa;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
   }
   
   /* Remove placeholder styles as we now have real components */
@@ -368,6 +372,8 @@ select:focus {
 .mobile-app {
   min-height: 100vh;
   background: #f8f9fa;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Mobile content containers */
@@ -377,6 +383,8 @@ select:focus {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Mobile placeholder styling for development */

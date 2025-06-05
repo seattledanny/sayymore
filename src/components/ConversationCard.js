@@ -1,19 +1,34 @@
 import React, { useState } from 'react';
 import './ConversationCard.css';
 import { analytics } from '../services/analytics';
+import { useTTSContext } from '../contexts/TTSContext';
+import TTSSettings from './TTSSettings';
 
 const ConversationCard = ({ 
   post, 
   isRead = false, 
   isFavorite = false, 
   onMarkAsRead,
-  onToggleFavorite
+  onToggleFavorite,
+  onPostSelect
 }) => {
   const [showComments, setShowComments] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [imageLoading, setImageLoading] = useState(true);
   const [imageExpanded, setImageExpanded] = useState(false);
+  const [showTTSSettings, setShowTTSSettings] = useState(false);
+
+  // TTS Hook
+  const { 
+    speak, 
+    stop, 
+    speaking, 
+    loading: ttsLoading, 
+    canSpeak, 
+    getUsageStats,
+    currentContent
+  } = useTTSContext();
 
   // Format numbers (5000 -> 5K)
   const formatNumber = (num) => {
@@ -84,8 +99,27 @@ const ConversationCard = ({
   };
 
   const handleCardClick = () => {
-    if (!isRead && onMarkAsRead) {
-      onMarkAsRead(post.id);
+    // If onPostSelect is provided (desktop), open in modal
+    if (onPostSelect) {
+      onPostSelect(post);
+      
+      // Mark as read if not already read
+      if (!isRead && onMarkAsRead) {
+        onMarkAsRead(post.id);
+      }
+      
+      // Track the interaction
+      analytics.trackConversationView(post);
+    } else {
+      // Fallback behavior: expand the post to show full content
+      setIsExpanded(true);
+      
+      // Mark as read if not already read
+      if (!isRead && onMarkAsRead) {
+        onMarkAsRead(post.id);
+      }
+      
+      // Track the interaction
       analytics.trackConversationView(post);
     }
   };
@@ -119,6 +153,48 @@ const ConversationCard = ({
   const handleImageClick = () => {
     setImageExpanded(!imageExpanded);
     analytics.trackImageClick(post);
+  };
+
+  // TTS Handlers
+  const handleTTSClick = (e) => {
+    e.stopPropagation();
+    
+    // Check if this specific post is currently playing
+    const isThisPostPlaying = speaking && currentContent?.postId === post.id;
+    
+    if (isThisPostPlaying) {
+      stop();
+      return;
+    }
+
+    // Create content to speak
+    const titleText = `Title: ${post.title}`;
+    const bodyText = post.body ? `Content: ${post.body}` : '';
+    const fullText = bodyText ? `${titleText}. ${bodyText}` : titleText;
+
+    // Check if we can speak this content
+    if (!canSpeak(fullText)) {
+      const usageStats = getUsageStats();
+      alert(`This content (${fullText.length} characters) would exceed your remaining character limit (${usageStats.remaining} characters). Consider using Browser TTS or reset your usage counter if it's a new month.`);
+      return;
+    }
+
+    speak(fullText, {
+      title: post.title,
+      postId: post.id,
+      subreddit: post.subreddit
+    });
+    
+    analytics.trackEvent('tts_used', {
+      post_id: post.id,
+      content_length: fullText.length,
+      subreddit: post.subreddit
+    });
+  };
+
+  const handleTTSSettingsClick = (e) => {
+    e.stopPropagation();
+    setShowTTSSettings(true);
   };
 
   // Check if post has image content
@@ -163,141 +239,168 @@ const ConversationCard = ({
   }, [post]);
 
   return (
-    <div 
-      className={`conversation-card ${isRead ? 'read' : 'unread'}`}
-      onClick={handleCardClick}
-    >
-      {/* Header */}
-      <div className="card-header">
-        <div className="subreddit-info">
-          <span 
-            className="subreddit-badge"
-            style={{ backgroundColor: getCategoryColor(post.subreddit) }}
-          >
-            r/{getSubredditDisplay(post.subreddit)}
-          </span>
-          <span className="post-meta">
-            {formatNumber(post.score)} pts • {formatTimeAgo(post.created_utc)}
-          </span>
-        </div>
-        
-        <div className="card-actions">
-          <button 
-            className={`favorite-btn ${isFavorite ? 'active' : ''}`}
-            onClick={handleToggleFavorite}
-            title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-          >
-            {isFavorite ? '❤️' : '🤍'}
-          </button>
-          
-          <div className="read-indicator">
-            {isRead ? '👁️' : '⚪'}
-          </div>
-        </div>
-      </div>
-
-      {/* Title */}
-      <h3 className="card-title">{post.title}</h3>
-
-      {/* Image Section */}
-      {hasImage() && !imageError && (
-        <div className="card-image-section">
-          <div className="image-container">
-            {imageLoading && (
-              <div className="image-loading">
-                <div className="loading-spinner"></div>
-                <span>Loading image...</span>
-              </div>
-            )}
-            <img 
-              src={getImageUrl()}
-              alt={post.title}
-              className="post-image"
-              onLoad={handleImageLoad}
-              onError={handleImageError}
-              style={{ display: imageLoading ? 'none' : 'block' }}
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Body */}
-      {post.body && (
-        <div className="card-body">
-          <p className="post-content">
-            {isExpanded ? post.body : truncateText(post.body)}
-          </p>
-          
-          {post.body && post.body.length > 200 && (
-            <button 
-              className="expand-btn"
-              onClick={handleToggleExpand}
+    <>
+      <div 
+        className={`conversation-card ${isRead ? 'read' : 'unread'}`}
+        onClick={handleCardClick}
+      >
+        {/* Header */}
+        <div className="card-header">
+          <div className="subreddit-info">
+            <span 
+              className="subreddit-badge"
+              style={{ backgroundColor: getCategoryColor(post.subreddit) }}
             >
-              {isExpanded ? 'Show less' : 'Read more'}
+              r/{getSubredditDisplay(post.subreddit)}
+            </span>
+            <span className="post-meta">
+              {formatNumber(post.score)} pts • {formatTimeAgo(post.created_utc)}
+            </span>
+          </div>
+          
+          <div className="card-actions">
+            {/* TTS Controls */}
+            <div className="tts-controls">
+              <button 
+                className={`tts-btn ${speaking && currentContent?.postId === post.id ? 'speaking' : ''} ${ttsLoading ? 'loading' : ''}`}
+                onClick={handleTTSClick}
+                title={speaking && currentContent?.postId === post.id ? 'Click to stop reading' : ttsLoading ? 'Loading...' : 'Read post aloud'}
+                disabled={ttsLoading}
+              >
+                {ttsLoading ? '⏳' : (speaking && currentContent?.postId === post.id) ? '⏹️' : '🔊'}
+              </button>
+              <button 
+                className="tts-settings-btn"
+                onClick={handleTTSSettingsClick}
+                title="TTS Settings"
+              >
+                ⚙️
+              </button>
+            </div>
+
+            <button 
+              className={`favorite-btn ${isFavorite ? 'active' : ''}`}
+              onClick={handleToggleFavorite}
+              title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+            >
+              {isFavorite ? '❤️' : '🤍'}
+            </button>
+            
+            <div className="read-indicator">
+              {isRead ? '👁️' : '⚪'}
+            </div>
+          </div>
+        </div>
+
+        {/* Title */}
+        <h3 className="card-title">{post.title}</h3>
+
+        {/* Image Section */}
+        {hasImage() && !imageError && (
+          <div className="card-image-section">
+            <div className="image-container">
+              {imageLoading && (
+                <div className="image-loading">
+                  <div className="loading-spinner"></div>
+                  <span>Loading image...</span>
+                </div>
+              )}
+              <img 
+                src={getImageUrl()}
+                alt={post.title}
+                className="post-image"
+                onLoad={handleImageLoad}
+                onError={handleImageError}
+                style={{ display: imageLoading ? 'none' : 'block' }}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Body */}
+        {post.body && (
+          <div className="card-body">
+            <p className="post-content">
+              {isExpanded ? post.body : truncateText(post.body)}
+            </p>
+            
+            {post.body && post.body.length > 200 && (
+              <button 
+                className="expand-btn"
+                onClick={handleToggleExpand}
+              >
+                {isExpanded ? 'Show less' : 'Read more'}
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Footer */}
+        <div className="card-footer">
+          <div className="post-stats">
+            <span className="comment-count">
+              💬 {formatNumber(post.num_comments)} comments
+            </span>
+            <span className="author">
+              by u/{post.author}
+            </span>
+          </div>
+
+          {/* Comments toggle */}
+          {post.comments && post.comments.length > 0 && (
+            <button 
+              className="comments-toggle"
+              onClick={handleToggleComments}
+            >
+              {showComments ? 'Hide' : 'Show'} top comments
             </button>
           )}
         </div>
-      )}
 
-      {/* Footer */}
-      <div className="card-footer">
-        <div className="post-stats">
-          <span className="comment-count">
-            💬 {formatNumber(post.num_comments)} comments
-          </span>
-          <span className="author">
-            by u/{post.author}
-          </span>
-        </div>
-
-        {/* Comments toggle */}
-        {post.comments && post.comments.length > 0 && (
-          <button 
-            className="comments-toggle"
-            onClick={handleToggleComments}
-          >
-            {showComments ? 'Hide' : 'Show'} top comments
-          </button>
-        )}
-      </div>
-
-      {/* Comments section */}
-      {showComments && post.comments && post.comments.length > 0 && (
-        <div className="comments-section">
-          <h4 className="comments-title">Top Comments:</h4>
-          {post.comments.slice(0, 3).map((comment, index) => (
-            <div key={comment.id || index} className="comment">
-              <div className="comment-header">
-                <span className="comment-author">u/{comment.author}</span>
-                <span className="comment-score">{formatNumber(comment.score)} pts</span>
+        {/* Comments section */}
+        {showComments && post.comments && post.comments.length > 0 && (
+          <div className="comments-section">
+            <h4 className="comments-title">Top Comments:</h4>
+            {post.comments.slice(0, 3).map((comment, index) => (
+              <div key={comment.id || index} className="comment">
+                <div className="comment-header">
+                  <span className="comment-author">u/{comment.author}</span>
+                  <span className="comment-score">{formatNumber(comment.score)} pts</span>
+                </div>
+                <p className="comment-body">
+                  {truncateText(comment.body, 150)}
+                </p>
               </div>
-              <p className="comment-body">
-                {truncateText(comment.body, 150)}
+            ))}
+            
+            {post.comments.length > 3 && (
+              <p className="more-comments">
+                +{post.comments.length - 3} more comments...
               </p>
-            </div>
-          ))}
-          
-          {post.comments.length > 3 && (
-            <p className="more-comments">
-              +{post.comments.length - 3} more comments...
-            </p>
-          )}
-        </div>
-      )}
+            )}
+          </div>
+        )}
 
-      {/* External link */}
-      <div className="card-link">
-        <a 
-          href={post.url} 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="reddit-link"
-          onClick={(e) => e.stopPropagation()}
-        >
-          View on Reddit →
-        </a>
+        {/* External link */}
+        <div className="card-link">
+          <a 
+            href={post.url} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="reddit-link"
+            onClick={(e) => e.stopPropagation()}
+          >
+            View on Reddit →
+          </a>
+        </div>
       </div>
-    </div>
+
+      {/* TTS Settings Modal */}
+      <TTSSettings 
+        isOpen={showTTSSettings}
+        onClose={() => setShowTTSSettings(false)}
+      />
+    </>
   );
 };
 

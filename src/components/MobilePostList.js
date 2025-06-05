@@ -8,7 +8,8 @@ const MobilePostList = ({
   selectedSubreddit,
   onPostSelect,
   onBackToLanding,
-  onGetFreshPosts
+  onGetFreshPosts,
+  onSubredditSelect
 }) => {
   
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -68,6 +69,15 @@ const MobilePostList = ({
     }
   };
 
+  const handleSubredditClick = (e, subreddit) => {
+    // Prevent the post card click from firing
+    e.stopPropagation();
+    
+    if (onSubredditSelect && subreddit) {
+      onSubredditSelect(subreddit);
+    }
+  };
+
   const handleBackClick = () => {
     if (onBackToLanding) {
       onBackToLanding();
@@ -81,31 +91,31 @@ const MobilePostList = ({
       // Call the parent function
       onGetFreshPosts();
       
-      // Scroll to top of the content container
+      // Improved scroll to top with longer delay and fallback
       setTimeout(() => {
         const contentContainer = document.querySelector('.mobile-post-list-content');
         if (contentContainer) {
+          // Force scroll to top
           contentContainer.scrollTo({
             top: 0,
             behavior: 'smooth'
           });
+          
+          // Fallback for better browser compatibility
+          setTimeout(() => {
+            if (contentContainer.scrollTop > 100) {
+              contentContainer.scrollTop = 0;
+            }
+          }, 500);
         }
-      }, 100);
+      }, 200); // Increased delay to ensure content is loaded
     }
   };
 
-  // Enhanced function to truncate post titles
-  const truncateTitle = (title, maxLength = 85) => {
+  // Enhanced function to display full post titles
+  const displayTitle = (title) => {
     if (!title) return 'Untitled Story';
-    if (title.length <= maxLength) return title;
-    
-    // Find the last complete word within the limit
-    const truncated = title.substring(0, maxLength);
-    const lastSpace = truncated.lastIndexOf(' ');
-    
-    return lastSpace > maxLength * 0.8 
-      ? truncated.substring(0, lastSpace) + '...'
-      : truncated + '...';
+    return title; // Return full title without truncation
   };
 
   // Enhanced function to format score for display
@@ -123,9 +133,8 @@ const MobilePostList = ({
   // Enhanced function to format subreddit display
   const formatSubreddit = (subreddit) => {
     if (!subreddit) return 'unknown';
-    // Capitalize first letter and handle long names
-    const formatted = subreddit.charAt(0).toUpperCase() + subreddit.slice(1);
-    return formatted.length > 12 ? formatted.substring(0, 12) + '...' : formatted;
+    // Capitalize first letter - no truncation needed since it's on its own line
+    return subreddit.charAt(0).toUpperCase() + subreddit.slice(1);
   };
 
   return (
@@ -146,29 +155,35 @@ const MobilePostList = ({
             key={animationKey}
             className={`posts-list ${isRefreshing ? 'refreshing' : ''}`}
           >
-            {posts.slice(0, 3).map((post, index) => (
+            {posts.slice(0, 6).map((post, index) => (
               <button
                 key={`${post.id}-${animationKey}`}
                 className="post-card"
-                onClick={() => handlePostClick(post)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handlePostClick(post);
+                }}
                 style={{
                   animationDelay: `${0.1 + (index * 0.1)}s`
                 }}
               >
                 <div className="post-header">
-                  <span className="post-number">#{index + 1}</span>
-                  <div className="post-meta">
+                  <div className="post-top-row">
+                    <span className="post-number">#{index + 1}</span>
                     <span className="post-score">
                       ↑ {formatScore(post.score)}
                     </span>
-                    <span className="post-subreddit">
-                      r/{formatSubreddit(post.subreddit)}
-                    </span>
                   </div>
+                  <button 
+                    className="post-subreddit" 
+                    onClick={(e) => handleSubredditClick(e, post.subreddit)}
+                  >
+                    r/{formatSubreddit(post.subreddit)}
+                  </button>
                 </div>
                 
                 <h3 className="post-title">
-                  {truncateTitle(post.title)}
+                  {displayTitle(post.title)}
                 </h3>
                 
                 <div className="post-footer">
@@ -201,7 +216,7 @@ const MobilePostList = ({
               onClick={handleFreshPostsClick}
               disabled={loading}
             >
-              {loading ? '🔄 Loading...' : '🎲 Get 3 Fresh Stories'}
+              {loading ? '🔄 Loading...' : '🎲 Get 6 Fresh Stories'}
             </button>
           )}
           

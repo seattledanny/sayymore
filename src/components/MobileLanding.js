@@ -6,11 +6,15 @@ const MobileLanding = ({
   subreddits = [],
   onCategorySelect,
   onSubredditSelect,
+  onPostTypeSelect,
   onAnalyticsClick
 }) => {
   
   // State for showing all subreddits vs just top 10
   const [showAllSubreddits, setShowAllSubreddits] = useState(false);
+  
+  // State for selected post type (auto-select 'top' by default)
+  const [selectedPostType, setSelectedPostType] = useState('top');
   
   // Ref for subreddits section to scroll to
   const subredditsHeaderRef = useRef(null);
@@ -36,13 +40,20 @@ const MobileLanding = ({
 
   const handleCategoryClick = (category) => {
     if (onCategorySelect) {
-      onCategorySelect(category);
+      onCategorySelect(category, selectedPostType);
     }
   };
 
   const handleSubredditClick = (subreddit) => {
     if (onSubredditSelect) {
-      onSubredditSelect(subreddit);
+      onSubredditSelect(subreddit, selectedPostType);
+    }
+  };
+
+  const handlePostTypeClick = (postType) => {
+    setSelectedPostType(postType);
+    if (onPostTypeSelect) {
+      onPostTypeSelect(postType, false);
     }
   };
 
@@ -68,6 +79,35 @@ const MobileLanding = ({
     <div className="mobile-landing">
       <div className="mobile-landing-content">
         
+        {/* Post Type Section - Moved to top */}
+        <section className="post-type-section-top">
+          <div className="post-type-grid-horizontal">
+            <button
+              className={`post-type-card-small ${selectedPostType === null ? 'active' : ''}`}
+              onClick={() => handlePostTypeClick(null)}
+            >
+              <span className="post-type-icon-small">📚</span>
+              <span className="post-type-name-small">All</span>
+            </button>
+            
+            <button
+              className={`post-type-card-small top-posts ${selectedPostType === 'top' ? 'active' : ''}`}
+              onClick={() => handlePostTypeClick('top')}
+            >
+              <span className="post-type-icon-small">🏆</span>
+              <span className="post-type-name-small">Top</span>
+            </button>
+            
+            <button
+              className={`post-type-card-small hot-posts ${selectedPostType === 'hot' ? 'active' : ''}`}
+              onClick={() => handlePostTypeClick('hot')}
+            >
+              <span className="post-type-icon-small">🔥</span>
+              <span className="post-type-name-small">Hot</span>
+            </button>
+          </div>
+        </section>
+
         {/* Categories Section */}
         <section className="categories-section">
           <h2 className="section-title">📚 Browse by Category</h2>

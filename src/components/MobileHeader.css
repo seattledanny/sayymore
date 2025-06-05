@@ -7,6 +7,7 @@
   border-bottom: 1px solid #e9ecef;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  scroll-margin-top: 0; /* Ensures smooth scroll targeting */
 }
 
 .mobile-header.gradient {
@@ -161,7 +162,7 @@
 @media (pointer: coarse) {
   .mobile-header-back,
   .mobile-header-action {
-    min-width: 44px;
+    min-width: 44px; /* iOS/Android standard minimum */
     height: 44px;
     font-size: 1.3rem;
   }

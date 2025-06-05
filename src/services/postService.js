@@ -22,8 +22,6 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 export class PostService {
   constructor() {
     this.postsCollection = collection(db, 'posts');
-    this.userPrefsDoc = doc(db, 'user_preferences', 'default_user');
-    this.permissionWarningShown = false;
   }
 
   // Get posts with filtering and pagination
@@ -31,6 +29,7 @@ export class PostService {
     category = null,
     subreddit = null,
     searchTerm = null,
+    postType = null,
     minScore = 50,
     lastDoc = null,
     limitCount = 12
@@ -38,7 +37,7 @@ export class PostService {
     try {
       // Create cache key (remove lastDoc from cache key for randomization)
       const cacheKey = JSON.stringify({
-        category, subreddit, searchTerm, minScore
+        category, subreddit, searchTerm, postType, minScore
       });
 
       // Check cache first but with shorter duration for randomization
@@ -54,7 +53,7 @@ export class PostService {
         };
       }
 
-      console.log('Fetching posts with filters:', { category, subreddit, searchTerm, minScore });
+      console.log('Fetching posts with filters:', { category, subreddit, searchTerm, postType, minScore });
 
       let q = query(this.postsCollection);
 
@@ -76,6 +75,14 @@ export class PostService {
           q = query(q, where('category', '==', category), limit(fetchSize));
         } catch (indexError) {
           console.warn('Category query failed, using simple query:', indexError);
+          q = query(this.postsCollection, limit(fetchSize));
+        }
+      } else if (postType) {
+        // Post type filter - filter by post_type field
+        try {
+          q = query(q, where('post_type', '==', postType), limit(fetchSize));
+        } catch (indexError) {
+          console.warn('Post type query failed, using simple query:', indexError);
           q = query(this.postsCollection, limit(fetchSize));
         }
       } else {
@@ -104,6 +111,17 @@ export class PostService {
         // Subreddit filter when specified (may already be applied server-side)
         if (subreddit && data.subreddit !== subreddit) {
           return; // Skip this post
+        }
+        
+        // Post type filter when specified (may already be applied server-side)
+        if (postType) {
+          // Strict filtering: only show posts that specifically match the requested type
+          if (data.post_type !== postType) {
+            return; // Skip this post
+          }
+        } else {
+          // When postType is null (All), include posts with undefined post_type as well
+          // This ensures backward compatibility with older posts that weren't tagged
         }
         
         // Search filter (since Firestore doesn't support full-text search)
@@ -148,7 +166,7 @@ export class PostService {
       
     } catch (error) {
       console.error('Error fetching posts:', error);
-      console.error('Query parameters:', { category, subreddit, searchTerm, minScore });
+      console.error('Query parameters:', { category, subreddit, searchTerm, postType, minScore });
       
       // Try a complete fallback - simple query with all client-side filtering
       try {
@@ -164,6 +182,7 @@ export class PostService {
           if (!data.score || data.score < minScore) return;
           if (category && data.category !== category) return;
           if (subreddit && data.subreddit !== subreddit) return;
+          if (postType && data.post_type !== postType) return;
           
           if (searchTerm) {
             const searchLower = searchTerm.toLowerCase();
@@ -321,12 +340,10 @@ export class PostService {
   // Mark post as read
   async markAsRead(postId) {
     try {
-      const userPrefs = await this.getUserPreferences();
-      if (!userPrefs.readPosts.includes(postId)) {
-        await updateDoc(this.userPrefsDoc, {
-          readPosts: arrayUnion(postId),
-          lastActivity: new Date()
-        });
+      const readPosts = this.getReadPostsFromStorage();
+      if (!readPosts.includes(postId)) {
+        readPosts.push(postId);
+        localStorage.setItem('sayymore_read_posts', JSON.stringify(readPosts));
       }
     } catch (error) {
       console.warn('Could not mark post as read:', error);
@@ -337,10 +354,11 @@ export class PostService {
   // Add to favorites
   async addToFavorites(postId) {
     try {
-      await updateDoc(this.userPrefsDoc, {
-        favorites: arrayUnion(postId),
-        lastActivity: new Date()
-      });
+      const favorites = this.getFavoritesFromStorage();
+      if (!favorites.includes(postId)) {
+        favorites.push(postId);
+        localStorage.setItem('sayymore_favorites', JSON.stringify(favorites));
+      }
     } catch (error) {
       console.warn('Could not add to favorites:', error);
       // Fail silently - don't break the app for preference issues
@@ -350,34 +368,48 @@ export class PostService {
   // Remove from favorites
   async removeFromFavorites(postId) {
     try {
-      await updateDoc(this.userPrefsDoc, {
-        favorites: arrayRemove(postId),
-        lastActivity: new Date()
-      });
+      const favorites = this.getFavoritesFromStorage();
+      const filteredFavorites = favorites.filter(id => id !== postId);
+      localStorage.setItem('sayymore_favorites', JSON.stringify(filteredFavorites));
     } catch (error) {
       console.warn('Could not remove from favorites:', error);
       // Fail silently - don't break the app for preference issues
     }
   }
 
-  // Get user preferences
+  // Get user preferences from localStorage
   async getUserPreferences() {
     try {
-      const doc = await getDoc(this.userPrefsDoc);
-      if (doc.exists()) {
-        return doc.data();
-      }
-      return { readPosts: [], favorites: [] };
+      return {
+        readPosts: this.getReadPostsFromStorage(),
+        favorites: this.getFavoritesFromStorage()
+      };
     } catch (error) {
-      // Only log permission errors once to avoid console spam
-      if (error.code === 'permission-denied' && !this.permissionWarningShown) {
-        console.warn('Firebase permissions not configured for user preferences. Using defaults.');
-        this.permissionWarningShown = true;
-      } else if (error.code !== 'permission-denied') {
-        console.error('Error fetching user preferences:', error);
-      }
-      // Return default preferences if there's an error (like permission issues)
+      console.warn('Could not get user preferences:', error);
+      // Return default preferences if there's an error
       return { readPosts: [], favorites: [] };
+    }
+  }
+
+  // Helper method to get read posts from localStorage
+  getReadPostsFromStorage() {
+    try {
+      const stored = localStorage.getItem('sayymore_read_posts');
+      return stored ? JSON.parse(stored) : [];
+    } catch (error) {
+      console.warn('Could not parse read posts from storage:', error);
+      return [];
+    }
+  }
+
+  // Helper method to get favorites from localStorage
+  getFavoritesFromStorage() {
+    try {
+      const stored = localStorage.getItem('sayymore_favorites');
+      return stored ? JSON.parse(stored) : [];
+    } catch (error) {
+      console.warn('Could not parse favorites from storage:', error);
+      return [];
     }
   }
 

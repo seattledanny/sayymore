@@ -9,12 +9,13 @@
 }
 
 .mobile-post-list-content {
-  padding: 20px;
+  padding: 10px 20px 120px 20px; /* Reduced top padding to 10px */
   max-width: 100%;
   flex: 1;
   overflow-y: auto;
-  padding-bottom: 60px; /* Extra padding to ensure buttons are fully visible */
   min-height: 0; /* Allow flex shrinking */
+  scroll-behavior: smooth; /* Smooth scrolling */
+  -webkit-overflow-scrolling: touch; /* iOS momentum scrolling */
 }
 
 /* Header Section */
@@ -114,7 +115,6 @@
   width: 100%;
   position: relative;
   overflow: hidden;
-  min-height: 140px; /* Ensure minimum 44px touch target with content */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -142,61 +142,86 @@
 
 /* Enhanced Post Header with Better Spacing */
 .post-header {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px;
+  flex-wrap: nowrap;
+}
+
+.post-top-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  gap: 10px;
+  flex-wrap: nowrap;
 }
 
 .post-number {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
-  font-size: 0.9rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  padding: 8px 14px;
-  border-radius: 14px;
-  min-width: 44px; /* Minimum touch target */
-  min-height: 32px;
+  padding: 4px 12px;
+  border-radius: 12px;
+  min-width: 60px;
+  min-height: 26px;
   text-align: center;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
-}
-
-.post-meta {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  flex-wrap: wrap;
+  flex-shrink: 0;
 }
 
 .post-score {
   background: rgba(40, 167, 69, 0.12);
   color: #1e7e34;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   font-weight: 600;
-  padding: 6px 12px;
+  padding: 4px 12px;
   border-radius: 12px;
   border: 1px solid rgba(40, 167, 69, 0.2);
-  min-height: 32px;
+  min-height: 26px;
+  min-width: 60px;
   display: flex;
   align-items: center;
+  justify-content: center;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .post-subreddit {
   background: rgba(102, 126, 234, 0.12);
   color: #5a6fd8;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   font-weight: 600;
-  padding: 6px 12px;
-  border-radius: 12px;
+  padding: 4px 12px;
   border: 1px solid rgba(102, 126, 234, 0.2);
-  min-height: 32px;
+  border-radius: 12px;
+  min-height: 26px;
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   white-space: nowrap;
+  flex-shrink: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  width: fit-content;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.post-subreddit:hover {
+  background: rgba(102, 126, 234, 0.2);
+  border-color: rgba(102, 126, 234, 0.4);
+  color: #4c63d2;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.post-subreddit:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(102, 126, 234, 0.2);
 }
 
 /* Enhanced Typography for Post Title */
@@ -205,10 +230,10 @@
   font-weight: 700;
   color: #1a202c;
   line-height: 1.5;
-  margin: 0 0 20px 0;
-  min-height: 60px;
+  margin: 10px 0;
+  padding: 10px 0;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   letter-spacing: -0.02em;
   word-break: break-word;
   flex-grow: 1;
@@ -279,11 +304,12 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  margin-top: 30px;
-  margin-bottom: 20px;
+  margin-top: 40px; /* Increased from 30px */
+  margin-bottom: 40px; /* Increased from 20px */
   padding-top: 24px;
-  padding-bottom: 20px;
+  padding-bottom: 40px; /* Increased from 20px */
   border-top: 1px solid #e9ecef;
+  scroll-margin-bottom: 20px; /* Ensures proper scroll target */
 }
 
 .fresh-posts-btn {
@@ -367,7 +393,7 @@
 /* Mobile Responsive Enhancements */
 @media (max-width: 480px) {
   .mobile-post-list-content {
-    padding: 16px;
+    padding: 10px 16px 140px 16px; /* Reduced top padding to 10px */
   }
   
   .post-list-header {
@@ -385,30 +411,51 @@
   .post-card {
     padding: 20px;
     border-radius: 16px;
-    min-height: 120px;
+  }
+  
+  .post-header {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px;
+    flex-wrap: nowrap;
+  }
+  
+  .post-top-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: nowrap;
   }
   
   .post-number {
-    padding: 7px 12px;
-    font-size: 0.85rem;
-    min-width: 40px;
-    min-height: 30px;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    min-width: 55px;
+    min-height: 26px;
+    flex-shrink: 0;
   }
   
   .post-title {
     font-size: 1.1rem;
-    min-height: 50px;
-  }
-  
-  .post-meta {
-    gap: 8px;
   }
   
   .post-score,
   .post-subreddit {
-    font-size: 0.8rem;
-    padding: 5px 10px;
-    min-height: 30px;
+    font-size: 0.75rem;
+    padding: 4px 10px;
+    min-height: 26px;
+    min-width: 55px;
+    flex-shrink: 0;
+  }
+  
+  .post-subreddit {
+    max-width: 100%;
+    justify-content: flex-start;
+  }
+  
+  .post-subreddit:hover {
+    background: rgba(102, 126, 234, 0.25);
+    transform: none; /* Disable transform on mobile for better performance */
   }
   
   .fresh-posts-btn {
@@ -422,29 +469,72 @@
     min-height: 48px;
     font-size: 0.95rem;
   }
+  
+  .post-list-actions {
+    margin-top: 32px;
+    margin-bottom: 32px;
+    padding-bottom: 32px;
+  }
 }
 
 /* Very small screens */
 @media (max-width: 360px) {
-  .post-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
+  .mobile-post-list-content {
+    padding: 10px 12px 160px 12px; /* Reduced top padding to 10px */
   }
   
-  .post-meta {
-    width: 100%;
+  .post-header {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 6px;
+    flex-wrap: nowrap;
+  }
+  
+  .post-top-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: nowrap;
+  }
+  
+  .post-number {
+    padding: 3px 8px;
+    font-size: 0.7rem;
+    min-width: 50px;
+    min-height: 24px;
+    flex-shrink: 0;
+  }
+  
+  .post-score,
+  .post-subreddit {
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    min-height: 24px;
+    min-width: 50px;
+    flex-shrink: 0;
+  }
+  
+  .post-subreddit {
+    max-width: 100%;
     justify-content: flex-start;
+  }
+  
+  .post-subreddit:hover {
+    background: rgba(102, 126, 234, 0.25);
+    transform: none;
   }
   
   .post-title {
     font-size: 1rem;
-    min-height: 45px;
   }
   
   .post-card {
     padding: 18px;
-    min-height: 110px;
+  }
+  
+  .post-list-actions {
+    margin-bottom: 40px;
+    padding-bottom: 40px;
   }
 }
 
@@ -462,7 +552,7 @@
 /* Touch feedback improvements */
 @media (pointer: coarse) {
   .post-card {
-    min-height: 150px; /* Larger touch targets on touch devices */
+    /* Larger touch targets on touch devices - no fixed height to allow content expansion */
   }
   
   .fresh-posts-btn,
@@ -470,9 +560,43 @@
     min-height: 56px; /* iOS/Android standard minimum */
   }
   
-  .post-number,
+  .post-header {
+    gap: 8px;
+  }
+  
+  .post-top-row {
+    gap: 12px;
+  }
+  
+  .post-number {
+    min-width: 60px;
+    min-height: 26px;
+    padding: 4px 12px;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+  }
+  
   .post-score,
   .post-subreddit {
-    min-height: 44px; /* iOS minimum touch target */
+    font-size: 0.75rem;
+    padding: 4px 12px;
+    min-height: 26px;
+    min-width: 60px;
+    flex-shrink: 0;
+  }
+  
+  .post-subreddit {
+    max-width: 100%;
+    justify-content: flex-start;
+  }
+  
+  .post-subreddit:hover {
+    background: rgba(102, 126, 234, 0.2);
+    transform: none; /* No transform animations on touch devices */
+  }
+  
+  .post-subreddit:active {
+    background: rgba(102, 126, 234, 0.3);
+    transform: scale(0.98); /* Subtle press feedback */
   }
 } 

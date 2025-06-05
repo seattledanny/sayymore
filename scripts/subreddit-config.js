@@ -13,6 +13,13 @@ const SUBREDDIT_CONFIG = [
     priority: 1
   },
   {
+    name: 'AITAH',
+    display_name: 'Am I The Asshole Here?',
+    category: 'morality',
+    description: 'Alternative AITA community with moral dilemmas',
+    priority: 1
+  },
+  {
     name: 'relationship_advice',
     display_name: 'Relationship Advice',
     category: 'advice',
