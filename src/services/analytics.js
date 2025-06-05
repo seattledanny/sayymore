@@ -5,12 +5,13 @@ class AnalyticsService {
     this.GA_TRACKING_ID = process.env.REACT_APP_GA_TRACKING_ID || 'G-PLACEHOLDER123';
     this.isProduction = process.env.NODE_ENV === 'production';
     this.isInitialized = false;
+    this.isDisabled = false; // Flag to disable analytics if issues occur
   }
 
   // Initialize Google Analytics
   initialize() {
-    if (!this.isProduction || this.isInitialized) {
-      console.log('Analytics: Skipping initialization (dev mode or already initialized)');
+    if (!this.isProduction || this.isInitialized || this.isDisabled) {
+      console.log('Analytics: Skipping initialization (dev mode, already initialized, or disabled)');
       return;
     }
 
@@ -19,35 +20,50 @@ class AnalyticsService {
       const script = document.createElement('script');
       script.async = true;
       script.src = `https://www.googletagmanager.com/gtag/js?id=${this.GA_TRACKING_ID}`;
+      script.onerror = () => {
+        console.warn('Analytics: Failed to load gtag script, disabling analytics');
+        this.isDisabled = true;
+      };
       document.head.appendChild(script);
 
-      // Initialize gtag
+      // Initialize gtag with additional safety checks
       window.dataLayer = window.dataLayer || [];
       window.gtag = function() {
-        window.dataLayer.push(arguments);
+        if (window.dataLayer && typeof window.dataLayer.push === 'function') {
+          window.dataLayer.push(arguments);
+        }
       };
 
-      window.gtag('js', new Date());
-      window.gtag('config', this.GA_TRACKING_ID, {
-        page_title: 'Reddit Conversations',
-        page_location: window.location.href,
-        custom_map: {
-          'custom_parameter_1': 'subreddit',
-          'custom_parameter_2': 'category',
-          'custom_parameter_3': 'post_type'
+      // Add a small delay to ensure script loads
+      setTimeout(() => {
+        try {
+          window.gtag('js', new Date());
+          window.gtag('config', this.GA_TRACKING_ID, {
+            page_title: 'Reddit Conversations',
+            page_location: window.location.href,
+            custom_map: {
+              'custom_parameter_1': 'subreddit',
+              'custom_parameter_2': 'category',
+              'custom_parameter_3': 'post_type'
+            }
+          });
+          this.isInitialized = true;
+          console.log('✅ Google Analytics initialized');
+        } catch (error) {
+          console.warn('❌ Failed to configure Google Analytics, disabling:', error);
+          this.isDisabled = true;
         }
-      });
+      }, 100);
 
-      this.isInitialized = true;
-      console.log('✅ Google Analytics initialized');
     } catch (error) {
-      console.error('❌ Failed to initialize Google Analytics:', error);
+      console.warn('❌ Failed to initialize Google Analytics, disabling:', error);
+      this.isDisabled = true;
     }
   }
 
   // Track page views
   trackPageView(page_title, page_location) {
-    if (!this.isProduction || !window.gtag || typeof window.gtag !== 'function') return;
+    if (!this.isProduction || !window.gtag || typeof window.gtag !== 'function' || this.isDisabled) return;
 
     try {
       window.gtag('config', this.GA_TRACKING_ID, {
@@ -56,13 +72,14 @@ class AnalyticsService {
       });
       console.log(`📊 Page view tracked: ${page_title}`);
     } catch (error) {
-      console.error('❌ Failed to track page view:', error);
+      console.warn('❌ Failed to track page view, disabling analytics:', error);
+      this.isDisabled = true;
     }
   }
 
   // Track custom events
   trackEvent(action, category, label = null, value = null, custom_parameters = {}) {
-    if (!this.isProduction || !window.gtag || typeof window.gtag !== 'function') return;
+    if (!this.isProduction || !window.gtag || typeof window.gtag !== 'function' || this.isDisabled) return;
 
     try {
       const eventData = {
@@ -75,7 +92,8 @@ class AnalyticsService {
       window.gtag('event', action, eventData);
       console.log(`📈 Event tracked: ${action} (${category})`);
     } catch (error) {
-      console.error('❌ Failed to track event:', error);
+      console.warn('❌ Failed to track event, disabling analytics:', error);
+      this.isDisabled = true;
     }
   }
 
@@ -164,48 +182,70 @@ class AnalyticsService {
 
   // Track performance metrics
   trackPerformance() {
-    if (!this.isProduction) return;
+    if (!this.isProduction || this.isDisabled) return;
 
     try {
-      // Track Core Web Vitals
-      import('web-vitals').then(({ getLCP, getFID, getCLS, getFCP, getTTFB }) => {
-        getLCP((metric) => {
-          this.trackEvent('web_vitals', 'performance', 'LCP', Math.round(metric.value), {
-            metric_name: 'largest_contentful_paint',
-            metric_value: Math.round(metric.value)
-          });
-        });
+      // Track Core Web Vitals with enhanced error handling
+      import('web-vitals')
+        .then(({ getLCP, getFID, getCLS, getFCP, getTTFB }) => {
+          if (this.isDisabled) return; // Check if analytics was disabled during import
 
-        getFID((metric) => {
-          this.trackEvent('web_vitals', 'performance', 'FID', Math.round(metric.value), {
-            metric_name: 'first_input_delay',
-            metric_value: Math.round(metric.value)
-          });
-        });
+          try {
+            getLCP((metric) => {
+              if (!this.isDisabled) {
+                this.trackEvent('web_vitals', 'performance', 'LCP', Math.round(metric.value), {
+                  metric_name: 'largest_contentful_paint',
+                  metric_value: Math.round(metric.value)
+                });
+              }
+            });
 
-        getCLS((metric) => {
-          this.trackEvent('web_vitals', 'performance', 'CLS', Math.round(metric.value * 1000), {
-            metric_name: 'cumulative_layout_shift',
-            metric_value: Math.round(metric.value * 1000)
-          });
-        });
+            getFID((metric) => {
+              if (!this.isDisabled) {
+                this.trackEvent('web_vitals', 'performance', 'FID', Math.round(metric.value), {
+                  metric_name: 'first_input_delay',
+                  metric_value: Math.round(metric.value)
+                });
+              }
+            });
 
-        getFCP((metric) => {
-          this.trackEvent('web_vitals', 'performance', 'FCP', Math.round(metric.value), {
-            metric_name: 'first_contentful_paint',
-            metric_value: Math.round(metric.value)
-          });
-        });
+            getCLS((metric) => {
+              if (!this.isDisabled) {
+                this.trackEvent('web_vitals', 'performance', 'CLS', Math.round(metric.value * 1000), {
+                  metric_name: 'cumulative_layout_shift',
+                  metric_value: Math.round(metric.value * 1000)
+                });
+              }
+            });
 
-        getTTFB((metric) => {
-          this.trackEvent('web_vitals', 'performance', 'TTFB', Math.round(metric.value), {
-            metric_name: 'time_to_first_byte',
-            metric_value: Math.round(metric.value)
-          });
+            getFCP((metric) => {
+              if (!this.isDisabled) {
+                this.trackEvent('web_vitals', 'performance', 'FCP', Math.round(metric.value), {
+                  metric_name: 'first_contentful_paint',
+                  metric_value: Math.round(metric.value)
+                });
+              }
+            });
+
+            getTTFB((metric) => {
+              if (!this.isDisabled) {
+                this.trackEvent('web_vitals', 'performance', 'TTFB', Math.round(metric.value), {
+                  metric_name: 'time_to_first_byte',
+                  metric_value: Math.round(metric.value)
+                });
+              }
+            });
+          } catch (innerError) {
+            console.warn('❌ Failed to set up web vitals tracking:', innerError);
+            this.isDisabled = true;
+          }
+        })
+        .catch((error) => {
+          console.warn('❌ Failed to import web-vitals, disabling performance tracking:', error);
+          // Don't disable all analytics for web-vitals failure, just skip performance tracking
         });
-      });
     } catch (error) {
-      console.error('❌ Failed to track performance metrics:', error);
+      console.warn('❌ Failed to track performance metrics:', error);
     }
   }
 
@@ -218,10 +258,17 @@ class AnalyticsService {
 
   // Track errors
   trackError(error, context = 'unknown') {
-    this.trackEvent('error', 'technical', context, null, {
-      error_message: error.message || error,
-      error_context: context
-    });
+    if (this.isDisabled) return;
+    
+    try {
+      this.trackEvent('error', 'technical', context, null, {
+        error_message: error.message || error,
+        error_context: context
+      });
+    } catch (trackingError) {
+      console.warn('❌ Failed to track error, disabling analytics:', trackingError);
+      this.isDisabled = true;
+    }
   }
 
   // Track category selection (mobile)
